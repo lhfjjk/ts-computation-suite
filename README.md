@@ -6,7 +6,9 @@ model (UniTS-Gen, ORCA GOAT-TS, or a hand-built guess) but need a reliable way
 to decide whether a candidate is a real, connected, first-order saddle for the
 reaction they intended.
 
-The entry point is [SKILL.md](SKILL.md). The suite is self-contained: no
+The entry point is [SKILL.md](SKILL.md). Repository: https://github.com/lhfjjk/ts-computation-suite
+
+The suite is self-contained: no
 author-specific paths, accounts, or auxiliary skills are required.
 
 ## What it is

@@ -28,8 +28,8 @@ python make_figure.py   # only if Figure 1 changes
 - [ ] **Affiliation** in `manuscript.tex` and `cover_letter.tex` (confirm the
       FJIRSM/UCAS wording, or replace with your current affiliation).
 - [ ] **ORCID** in the ChemRxiv submission form (not required in the PDF).
-- [ ] **GitHub URL** in the manuscript's Data and code availability section and
-      in the cover letter, after the repository is public.
+- [x] **GitHub URL** is set to https://github.com/lhfjjk/ts-computation-suite
+      in the manuscript and cover letter.
 - [ ] **Case-study approval**: the numbers in Table 3 come from internal
       projects; confirm they may be released publicly.
 - [ ] **Coauthor approval**: the manuscript currently lists a single author.
@@ -48,5 +48,4 @@ python make_figure.py   # only if Figure 1 changes
   `references.bib`. The Gaussian 16 entry is a software citation without a DOI.
 - The visual check was done by inspecting the rendered pages; re-check the PDF
   in your own viewer before submitting, especially the figure and tables.
-- After the GitHub repository is public, replace the "repository in
-  preparation" sentence in the manuscript and cover letter with the URL.
+- The GitHub repository is public at https://github.com/lhfjjk/ts-computation-suite.

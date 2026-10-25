@@ -8,6 +8,8 @@ authors:
 version: 0.1.0
 date-released: 2026-10-25
 license: MIT
+repository-code: "https://github.com/lhfjjk/ts-computation-suite"
+url: "https://github.com/lhfjjk/ts-computation-suite"
 keywords:
   - transition state
   - computational chemistry
