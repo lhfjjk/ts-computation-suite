@@ -31,34 +31,37 @@ author-specific paths, accounts, or auxiliary skills are required.
 - It does not guarantee that a candidate is the target channel. A `SADDLE-1`
   with the right atom pair can still be the wrong reaction.
 
-## Quick start
+## Quick start (agent deployment)
 
-```bash
-# 1) environment check (no quantum-chemistry job is run)
-python scripts/doctor.py
+1. Put this folder in your agent's skill directory:
+   - ZCode: `~/.zcode/skills/ts-computation-suite/`
+   - Codex: `~/.codex/skills/ts-computation-suite/`
 
-# 2) local ORCA: per-point independent scan
-python scripts/ts_scan_pts.py --xyz reactant.xyz --pair 21,57 \
-    --start 1.40 --end 2.60 --points 6 --charge 0 --mult 2 \
-    --method TPSS --basis def2-SVP --disp D3BJ --solvent Toluene \
-    --outdir scan_P1 --run
+   ```bash
+   git clone https://github.com/lhfjjk/ts-computation-suite \
+       ~/.zcode/skills/ts-computation-suite
+   ```
 
-# 3) ORCA L1 -> L2 -> L3 -> SP ladder
-python scripts/ts_ladder.py --name P1 --xyz scan_P1/p04/point.xyz \
-    --forming 21,57 --hold 21,57=1.75 --charge 0 --mult 2 \
-    --method TPSS --basis def2-SVP --solvent Toluene --outdir ladder_P1
-python scripts/ts_ladder_run.py --dir ladder_P1 --reactive 21,57
+2. Start a new session so the agent discovers the skill.
 
-# 4) Gaussian/Slurm route
-python scripts/gauss_ts_prep.py --xyz guess.xyz --name g6TS \
-    --charge 0 --mult 2 --method UB3LYP --basis "6-31G(d)" \
-    --disp "em=gd3bj" --solvent toluene \
-    --constraints "1,2,1.500" --nproc 24 --mem 48GB \
-    --outdir gauss_g6TS --slurm --partition community
-```
+3. Invoke it by name (`$ts-computation-suite`) or with a request such as:
 
-See [references/setup.md](references/setup.md) for installation, environment
-variables, and a five-minute smoke test.
+   > Use `$ts-computation-suite` to validate this TS candidate. Start with the
+   > P0 declarations, run the four-stage protocol, and report the imaginary
+   > frequency, mode localization, IRC endpoints, and spin diagnostics.
+
+4. On first use, run `python scripts/doctor.py`. If a tool is not found, set
+   `TS_ORCA_EXE`, `ORCA_DIR`, `TS_G16_EXE`, or `TS_XTB_EXE`; see
+   [references/setup.md](references/setup.md).
+
+5. The agent reads [SKILL.md](SKILL.md) for the protocol and
+   [references/](references/) for details. No manual command sequence is
+   required. The agent should not submit a DFT job until the P0 declarations
+   are complete.
+
+For manual execution, the exact ORCA/Gaussian commands are in
+[references/local-orca.md](references/local-orca.md) and
+[references/hpc-slurm.md](references/hpc-slurm.md).
 
 ## Repository layout
 
