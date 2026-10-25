@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this protocol, please cite the companion ChemRxiv preprint and this repository."
+title: "TS Computation Suite"
+abstract: "A portable, validation-first protocol for AI-assisted transition-state discovery, with local ORCA/xtb and Gaussian/Slurm execution, candidate prefiltering, and imaginary-frequency/IRC validation."
+authors:
+  - family-names: Li
+    given-names: Hao-Fan
+version: 0.1.0
+date-released: 2026-10-25
+license: MIT
+keywords:
+  - transition state
+  - computational chemistry
+  - AI-assisted chemistry
+  - ORCA
+  - Gaussian
+  - reaction mechanism

@@ -1,0 +1,19 @@
+# ORCA IRC from a converged TS; start from the TS geometry, not the guess.
+# Do not combine IRC with internal constraints.
+# Placeholders: METHOD, DISP, BASIS, NPROC, MAXCORE, SOLVENT, CHARGE, MULT, TS_GEOM, TS_HESS
+! IRC {{METHOD}} {{DISP}} {{BASIS}} RIJCOSX
+%pal nprocs {{NPROC}} end
+%maxcore {{MAXCORE}}
+%cpcm
+  smd true
+  SMDsolvent "{{SOLVENT}}"
+end
+%irc
+  MaxIter 20
+  InitHess Read
+  Hess_Filename "{{TS_HESS}}"
+  Direction both
+  PrintLevel 2
+  Trajectory True
+end
+* xyzfile {{CHARGE}} {{MULT}} {{TS_GEOM}}

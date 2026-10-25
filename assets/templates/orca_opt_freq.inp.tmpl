@@ -1,0 +1,13 @@
+# ORCA geometry optimization + frequency
+# Placeholders: METHOD, DISP, BASIS, NPROC, MAXCORE, SOLVENT, MAXITER, CHARGE, MULT, GEOM
+! Opt Freq {{METHOD}} {{DISP}} {{BASIS}} RIJCOSX
+%pal nprocs {{NPROC}} end
+%maxcore {{MAXCORE}}
+%cpcm
+  smd true
+  SMDsolvent "{{SOLVENT}}"
+end
+%geom
+  MaxIter {{MAXITER}}
+end
+* xyzfile {{CHARGE}} {{MULT}} {{GEOM}}

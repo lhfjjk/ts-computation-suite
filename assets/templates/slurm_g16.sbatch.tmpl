@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -J {{NAME}}
+#SBATCH -N 1
+#SBATCH -n {{NPROC}}
+#SBATCH -c 1
+#SBATCH -p {{PARTITION}}
+#SBATCH -o slurm-%j.out
+#SBATCH --time={{TIME}}
+
+export PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
+export LD_LIBRARY_PATH=/lib64:/usr/lib64:/usr/local/lib64:/usr/lib64/atlas
+export g16root='{{G16ROOT}}'
+source "${g16root}/g16/bsd/g16.profile"
+export GAUSS_SCRDIR=/tmp
+
+date
+bash run_chain.sh
+echo "EXIT=$?"
+date

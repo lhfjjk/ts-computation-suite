@@ -1,0 +1,18 @@
+# ORCA constrained reference point + frequency (L1)
+# The constrained point is NOT a TS; it produces the Hessian for L2.
+# Placeholders: METHOD, DISP, BASIS, NPROC, MAXCORE, SOLVENT, MAXITER, CHARGE, MULT, GEOM
+# Constraints are ORCA 0-based: { B i0 j0 distance C }
+! Opt Freq {{METHOD}} {{DISP}} {{BASIS}} RIJCOSX
+%pal nprocs {{NPROC}} end
+%maxcore {{MAXCORE}}
+%cpcm
+  smd true
+  SMDsolvent "{{SOLVENT}}"
+end
+%geom
+  MaxIter {{MAXITER}}
+  Constraints
+    { B {{I0}} {{J0}} {{D}} C }
+  end
+end
+* xyzfile {{CHARGE}} {{MULT}} {{GEOM}}

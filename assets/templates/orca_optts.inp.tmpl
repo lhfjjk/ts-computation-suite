@@ -1,0 +1,15 @@
+# ORCA OptTS reading the L1 Hessian
+# Placeholders: METHOD, DISP, BASIS, NPROC, MAXCORE, SOLVENT, MAXITER, CHARGE, MULT, GEOM, HESS
+! OptTS Freq {{METHOD}} {{DISP}} {{BASIS}} RIJCOSX
+%pal nprocs {{NPROC}} end
+%maxcore {{MAXCORE}}
+%cpcm
+  smd true
+  SMDsolvent "{{SOLVENT}}"
+end
+%geom
+  MaxIter {{MAXITER}}
+  InHess Read
+  InHessName "{{HESS}}"
+end
+* xyzfile {{CHARGE}} {{MULT}} {{GEOM}}

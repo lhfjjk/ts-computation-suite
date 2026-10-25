@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -J {{NAME}}
+#SBATCH -N 1
+#SBATCH -n {{NPROC}}
+#SBATCH -c 1
+#SBATCH -p {{PARTITION}}
+#SBATCH -o slurm-%j.out
+#SBATCH --time={{TIME}}
+
+# Edit the module/load lines for your cluster; do not run ORCA on the login node.
+# module load orca/6.1.1
+export ORCA_EXE="${ORCA_EXE:-orca}"
+
+date
+"$ORCA_EXE" {{INPUT}} > {{OUTPUT}} 2>&1
+rc=$?
+echo "EXIT=$rc"
+date
+exit $rc

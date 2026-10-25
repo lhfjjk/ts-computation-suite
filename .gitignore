@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+
+# quantum-chemistry scratch/outputs
+*.out
+*.log
+*.chk
+*.hess
+*.gbw
+*.gbw.tmp
+*.tmp
+slurm-*.out
+scan_*/
+ladder_*/
