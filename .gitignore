@@ -14,3 +14,14 @@ Thumbs.db
 slurm-*.out
 scan_*/
 ladder_*/
+
+# manuscript build artifacts (keep the .tex, .bib, .pdf and figures)
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/pages*/
+paper/pages_si*/

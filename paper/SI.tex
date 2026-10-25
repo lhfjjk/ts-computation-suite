@@ -1,0 +1,278 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parindent}{1.1em}
+\setlength{\parskip}{0.25em}
+\renewcommand{\arraystretch}{1.12}
+
+\title{Supporting Information\\[4pt]
+\large Beyond Candidate Generation: A Validation-First Protocol for AI-Assisted Transition-State Discovery}
+\author{Hao-Fan Li}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{S1. Protocol checklists}
+
+\subsection*{S1.1 P0: chemical preflight}
+\begin{itemize}
+\item Reactive pairs: which bonds form and which break, with their actual distances in the starting geometry.
+\item Charge, multiplicity, and every accessible $d^n$ spin state, including broken-symmetry solutions.
+\item Connectivity: build a bond graph with a distance criterion; check the intended bonds and any unplanned bond.
+\item Conformers: pre-fold flexible ligands/chains; retain several low-energy conformers.
+\item Reference state: reactant or encounter complex and product, at the same level as the TS.
+\item Candidate filter: hard overlaps, clash ratios, heavy-atom RMSD, connectivity changes.
+\end{itemize}
+
+\subsection*{S1.2 P1: barrier-region scan}
+\begin{itemize}
+\item Use 4--8 points along the reaction coordinate, not a blind OptTS.
+\item Each point is an independent constrained optimization, starting from the previous converged geometry.
+\item Only converged points enter the profile; the highest converged point is the TS guess.
+\item Check the profile for monotonicity, shallow double bumps, and flat regions.
+\end{itemize}
+
+\subsection*{S1.3 P2: constrained reference and Hessian}
+\begin{itemize}
+\item Run a constrained \texttt{Opt + Freq} at the chosen distance.
+\item The lowest modes must involve the declared reactive pair; otherwise do not run OptTS.
+\item Keep the Hessian and the reference geometry; both are reused downstream.
+\end{itemize}
+
+\subsection*{S1.4 P3: OptTS}
+\begin{itemize}
+\item Read the P2 Hessian (\texttt{InHess Read} in ORCA; \texttt{readfc} in Gaussian).
+\item If displacing, scale by the target bond-length change ($\sim$0.05~\AA{}), not the maximum atomic displacement.
+\item Apply the stop rules in Table~\ref{tab:stop-si}.
+\end{itemize}
+
+\subsection*{S1.5 P4: validation}
+\begin{itemize}
+\item Exactly one significant imaginary frequency.
+\item The imaginary mode moves the declared reactive pair; localization is not below 15\%.
+\item Key bond lengths match the intended step.
+\item IRC or downhill relaxation reaches the intended reactant and product.
+\item $\langle S^2\rangle$ and Mulliken spin are consistent with the geometry.
+\item Optimization/frequency/IRC at the same level; $\Delta E$ for minimum-vs-saddle; one solvation convention.
+\end{itemize}
+
+\section*{S2. Input templates}
+
+\subsection*{S2.1 ORCA: per-point constrained optimization}
+\begin{verbatim}
+! Opt TPSS D3BJ def2-SVP RIJCOSX
+%pal nprocs 12 end
+%maxcore 1100
+%cpcm
+  smd true
+  SMDsolvent "Toluene"
+end
+%geom
+  MaxIter 220
+  Constraints
+    { B 20 56 1.750 C }
+  end
+end
+* xyzfile 0 2 start.xyz
+\end{verbatim}
+
+\subsection*{S2.2 ORCA: constrained reference + frequency}
+\begin{verbatim}
+! Opt Freq TPSS D3BJ def2-SVP RIJCOSX
+%pal nprocs 12 end
+%maxcore 1100
+%cpcm
+  smd true
+  SMDsolvent "Toluene"
+end
+%geom
+  MaxIter 220
+  Constraints
+    { B 20 56 1.750 C }
+  end
+end
+* xyzfile 0 2 start.xyz
+\end{verbatim}
+
+\subsection*{S2.3 ORCA: OptTS reading the reference Hessian}
+\begin{verbatim}
+! OptTS Freq TPSS D3BJ def2-SVP RIJCOSX
+%pal nprocs 12 end
+%maxcore 1100
+%cpcm
+  smd true
+  SMDsolvent "Toluene"
+end
+%geom
+  MaxIter 160
+  InHess Read
+  InHessName "L1-constOptFreq.hess"
+end
+* xyzfile 0 2 L1-constOptFreq.xyz
+\end{verbatim}
+
+\subsection*{S2.4 ORCA: IRC}
+\begin{verbatim}
+! IRC TPSS D3BJ def2-SVP RIJCOSX
+%pal nprocs 12 end
+%maxcore 1100
+%irc
+  MaxIter 20
+  InitHess Read
+  Hess_Filename "L2-TSopt.hess"
+  Direction both
+  PrintLevel 2
+  Trajectory True
+end
+* xyzfile 0 2 L2-TSopt.xyz
+\end{verbatim}
+
+\subsection*{S2.5 Gaussian: constrained reference + frequency}
+\begin{verbatim}
+%mem=48GB
+%nprocshared=24
+%chk=01_const_optfreq.chk
+#p UB3LYP/6-31G(d) opt=(calcfc,modredundant,maxcycles=220) freq
+   em=gd3bj scrf=(smd,solvent=toluene) int=ultrafine
+
+TS step 1: constrained Opt+Freq
+
+0 2
+<coordinates>
+
+B 1 2 1.500 F
+B 3 4 2.100 F
+
+\end{verbatim}
+
+\subsection*{S2.6 Gaussian: OptTS reading the reference checkpoint}
+\begin{verbatim}
+%mem=48GB
+%nprocshared=24
+%oldchk=01_const_optfreq.chk
+%chk=02_ts_optfreq.chk
+#p UB3LYP/6-31G(d) opt=(ts,readfc,noeigen,maxcycles=220) freq
+   em=gd3bj scrf=(smd,solvent=toluene) int=ultrafine
+   geom=check guess=read
+
+TS step 2: OptTS+Freq
+
+0 2
+
+\end{verbatim}
+
+\subsection*{S2.7 Slurm template}
+\begin{verbatim}
+#!/bin/bash
+#SBATCH -J ts
+#SBATCH -N 1
+#SBATCH -n 24
+#SBATCH -p <partition>
+#SBATCH -o slurm-%j.out
+#SBATCH --time=48:00:00
+
+export g16root='<g16root>'
+source "${g16root}/g16/bsd/g16.profile"
+export GAUSS_SCRDIR=/tmp
+
+date
+bash run_chain.sh
+echo "EXIT=$?"
+date
+\end{verbatim}
+
+\section*{S3. Case-study details}
+
+The systems in the main-text case studies are 84--98 atom Ni/Fe complexes with
+organic ligands, treated with TPSS-D3BJ/def2-SVP (RIJCOSX, SMD) for geometry
+and frequency calculations, and higher-level single points where noted. The
+numbers below are the observations discussed in the main text.
+
+\begin{table}[h]
+\centering
+\caption{Internal case-study observations.}
+\label{tab:cases-si}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.2cm}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+Case & Observation & Lesson \\
+\midrule
+Per-point scan & 16/16 points converged after three collective scans failed; the problematic point converged in 44 cycles & A local unit of failure is more robust than a collective scan \\
+Mode displacement & 0.18~\AA{} maximum displacement changed the reactive bond by $-0.31$~\AA{}; 183 cycles into the reactant basin & Scale by the target bond change ($\sim$0.05~\AA{}) \\
+Second-order saddle & Two rounds returned the same geometry and energy (0.003 kcal mol$^{-1}$); a finer grid confirmed the soft mode & Stop after the second repeat; disclose or rigidify \\
+Conformer-dominated R/S & Ligand-overlay RMSD 1.62~\AA{} between R and S intermediates & Search conformers before claiming stereoselectivity \\
+Generative model OOD & Four candidates passed the filter but had 3.6--4.4~\AA{} RMSD to the reference & Test the applicability domain on the system class \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{S4. AI candidate generation: practical notes}
+
+\subsection*{S4.1 UniTS-Gen}
+UniTS uses a 0-based \texttt{reactive\_atom\_idx}, whereas many post-processing
+scripts use 1-based atom indices. Convert explicitly. The intended use is
+multi-sampling: generate ten candidates, prefilter, and send only a few to DFT.
+Single-shot correctness is moderate; the published benchmark reports that
+multi-sampling recovers all five previously failed cases. In an internal test
+on an 84-atom Ni broken-symmetry system, four candidates passed the geometric
+filter but had 3.6--4.4~\AA{} heavy-atom RMSD to the reference; the model was out
+of distribution for that system class.
+
+\subsection*{S4.2 ORCA GOAT-TS}
+GOAT-TS is a built-in, non-ML search. A minimal input is:
+\begin{verbatim}
+! GOAT-TS B3LYP D3BJ def2-SVP TightSCF
+%pal nprocs 12 end
+%maxcore 1100
+%GOAT
+  USEGOAT true
+  MAXITER 30
+  REACTIVEATOMS {0 4 5} end
+end
+* xyz 0 1
+<coordinates>
+*
+\end{verbatim}
+\texttt{REACTIVEATOMS} uses braces and 0-based indices. GOAT is a search tool;
+its output still goes through P2--P4. It becomes expensive for large flexible
+systems and is best used for channel discovery or medium-sized systems.
+
+\section*{S5. Stop rules}
+
+\begin{table}[h]
+\centering
+\caption{Stop rules used in the protocol.}
+\label{tab:stop-si}
+\small
+\begin{tabularx}{\linewidth}{@{}p{0.4cm}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\# & Symptom & Action \\
+\midrule
+1 & Lowest mode at P2 does not involve the reactive pair & Do not run OptTS; change constraint/conformer/guess \\
+2 & OptTS energy decreases monotonically for $>50$ cycles while the reactive bond is unchanged & Wrong basin; stop and return to P1/P2 \\
+3 & Two displaced OptTS runs return to the same geometry and energy ($<0.01$ kcal mol$^{-1}$) & Stop; accept with disclosure, rigidify, or run IRC along the reactive mode \\
+4 & Two or three shallow imaginary modes around $-15$ to $-25$ cm$^{-1}$ & Flat transition valley; use the last geometry's frequency as a reference barrier and say so \\
+5 & Imaginary-mode localization below 15\% & Delocalized soft mode; not the target coordinate \\
+6 & \texttt{SADDLE-1} and the declared pair matches, but key bond lengths are wrong & Wrong channel; do not report this barrier \\
+7 & IRC or relaxation endpoint is not the intended reactant/product & No barrier claim; return to P1/P2 \\
+8 & Single-point $\langle S^2\rangle$ differs from the geometry job & Wrong electronic state; repeat the full spin setup \\
+9 & R/S difference without a conformer search & Not a stereoselectivity result; do the ensemble first \\
+10 & xtb and DFT disagree & DFT wins; xtb is for folding only \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\end{document}

@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+
+\begin{document}
+
+\begin{flushright}
+October 2026
+\end{flushright}
+
+\noindent
+ChemRxiv Editorial Team
+
+\vspace{1.2em}
+\noindent
+\textbf{Re: Submission of ``Beyond Candidate Generation: A Validation-First Protocol for AI-Assisted Transition-State Discovery''}
+
+\vspace{0.6em}
+Dear Editors,
+
+I am pleased to submit the manuscript above for consideration as a ChemRxiv
+preprint. The manuscript is a methods and perspective contribution on how to
+validate transition-state (TS) candidates produced by AI models. It is not a
+claim of a new predictive model; it is a protocol that separates candidate
+generation from physical validation and makes the validation layer
+reproducible.
+
+The central argument is that a generated geometry is a hypothesis, not a
+transition state. A TS requires one imaginary frequency, the intended atom
+pair, the correct connectivity, and a consistent electronic state. The
+manuscript presents a four-stage protocol---chemical preflight, barrier-region
+scan, constrained reference plus Hessian, and validation---and implements it as
+a portable, open-source skill package for local ORCA/xtb and Gaussian/Slurm
+execution. It illustrates the protocol with internal case studies from Ni/Fe
+catalysis, including a per-point scan strategy that completed 16/16 points
+after a collective scan failed three times, and a generative-model test on an
+84-atom broken-symmetry organometallic system where the candidates were out of
+distribution.
+
+I believe the work is well suited to ChemRxiv because it is a community-facing
+methods contribution: the protocol and the implementation are meant to be used
+and criticized before journal submission. The preprint will also establish a
+citable reference for the open-source package. The manuscript is not under
+consideration elsewhere, and I am the sole author.
+
+The author declares no competing financial interest. The code repository is in
+preparation; the package is available from the corresponding author and will be
+linked in the final version.
+
+Suggested categories: Computational Chemistry (primary); Catalysis (secondary).
+
+\vspace{1.0em}
+\noindent
+Sincerely,\\[0.8em]
+Hao-Fan Li\\
+State Key Laboratory of Structural Chemistry\\
+Fujian Institute of Research on the Structure of Matter\\
+Chinese Academy of Sciences, Fuzhou 350002, China\\
+University of Chinese Academy of Sciences, Beijing 100049, China\\
+\texttt{[corresponding email]}
+
+\end{document}

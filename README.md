@@ -79,7 +79,8 @@ assets/templates/         ORCA/Gaussian/Slurm input templates
 ## Citation
 
 A companion preprint describing the protocol and case evidence is in
-preparation for ChemRxiv. Until it is available, cite this repository:
+preparation for ChemRxiv; the draft source and PDF are in
+[`paper/`](paper/). Until it is available, cite this repository:
 
 ```text
 Li, H.-F. TS Computation Suite: a validation-first protocol for AI-assisted
