@@ -8,6 +8,20 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.2.2] - 2026-10-28
+
+### Changed
+
+- Repositioned the package as an **AI-assisted computational toolkit whose core
+  function is transition-state discovery**. The README and the `SKILL.md`
+  description now also cover reaction energies, bond dissociation free energies,
+  conformer ensembles, spin-state checks, geometry repair, and job
+  orchestration — the same gates and rules serve those jobs.
+- `docs/INTRO-VIDEO-SCRIPT.md` rewritten around that scope: a new section on the
+  non-TS uses (one energy convention, conformer ensembles first, spin-state
+  enumeration), with an updated 30-second cut, generator prompt, shot list and
+  fact-check table.
+
 ## [0.2.1] - 2026-10-28
 
 ### Added

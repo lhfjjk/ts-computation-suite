@@ -1,15 +1,18 @@
 ---
 name: ts-computation-suite
 description: >-
-  End-to-end transition-state (TS) computation for chemists: accelerated
-  five-stage protocol (chemical preflight, barrier scan, constrained
-  reference/Hessian, OptTS, validation), local ORCA/xtb runs, Gaussian/Slurm
-  HPC submissions, candidate prefiltering, imaginary-frequency/IRC checks, and
-  AI-assisted candidate generation. Use when planning or running a TS search,
-  choosing between local and HPC execution, writing OptTS/opt=ts inputs,
-  diagnosing a failed TS, or comparing barriers and selectivities. Not for
-  reactions without a defined elementary step, or for excited-state/nonadiabatic
-  dynamics.
+  An AI-assisted computational chemistry toolkit built around transition-state
+  discovery: a five-stage validation-first protocol (chemical preflight,
+  barrier scan, constrained reference/Hessian, OptTS, validation), local
+  ORCA/xtb runs, Gaussian/Slurm HPC submissions, candidate prefiltering,
+  imaginary-frequency/IRC checks, and AI-assisted candidate generation. The
+  same gates and rules also serve reaction energies, bond dissociation free
+  energies, conformer ensembles, spin-state checks, geometry repair, and job
+  orchestration. Use when planning or running a TS search, choosing between
+  local and HPC execution, writing OptTS/opt=ts inputs, diagnosing a failed TS,
+  comparing barriers and selectivities, or validating reaction energies and
+  bond-strength calculations. Not for reactions without a defined elementary
+  step, or for excited-state/nonadiabatic dynamics.
 metadata:
   short-description: Accelerated TS search with local ORCA and Slurm Gaussian
 ---

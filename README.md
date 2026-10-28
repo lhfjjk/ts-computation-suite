@@ -13,11 +13,16 @@ author-specific paths, accounts, or auxiliary skills are required.
 
 ## What it is
 
-- A five-stage protocol: **P0 chemical preflight → P1 barrier scan → P2
-  constrained reference + Hessian → P3 OptTS → P4 validation**.
-- Local ORCA/xtb execution and Gaussian/Slurm execution, with templates.
-- Scripts for candidate prefiltering, per-point independent scans, ORCA/Gaussian
-  input generation, imaginary-frequency/IRC checks, and an environment doctor.
+- **The core function:** a five-stage protocol for transition-state discovery —
+  **P0 chemical preflight → P1 barrier scan → P2 constrained reference +
+  Hessian → P3 OptTS → P4 validation**.
+- **The same gates for other jobs:** reaction energies and bond dissociation
+  free energies (constrained reference points, frequency/thermochemistry
+  checks, one fixed energy convention), conformer ensembles, spin-state
+  enumeration, and geometry repair before DFT.
+- **The plumbing:** local ORCA/xtb execution and Gaussian/Slurm execution with
+  templates, candidate prefiltering, per-point independent scans, input
+  generation, imaginary-frequency/IRC/⟨S²⟩ checks, and an environment doctor.
 - A failure catalogue and printable checklists distilled from real Ni/Fe
   catalysis projects.
 
