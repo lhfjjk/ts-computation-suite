@@ -1,6 +1,6 @@
 # Candidate generation: UniTS-Gen, GOAT-TS, or manual
 
-The four-stage protocol starts with a TS guess. This reference covers the three
+The five-stage protocol starts with a TS guess. This reference covers the three
 practical sources of that guess. The rest of the suite (prefilter, L1/L2,
 validation) is independent of which source you use.
 

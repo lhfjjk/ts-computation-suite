@@ -1,6 +1,6 @@
 # Background: why the protocol looks like this
 
-This is the conceptual layer behind the four-stage protocol. It is optional
+This is the conceptual layer behind the five-stage protocol. It is optional
 reading for running a calculation, but it explains why the gates use ΔE, why a
 constrained point is not a TS, why selectivity is a flux ratio, and what AI can
 and cannot contribute.

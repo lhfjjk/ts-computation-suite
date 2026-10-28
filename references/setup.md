@@ -116,7 +116,7 @@ ts-computation-suite/
   SKILL.md                  entry point and protocol summary
   references/
     setup.md                this file
-    ts-protocol.md          four-stage protocol + stop rules
+    ts-protocol.md          five-stage protocol + stop rules
     local-orca.md           ORCA/xtb execution
     hpc-slurm.md            Gaussian/Slurm execution
     pitfalls.md             failure catalogue

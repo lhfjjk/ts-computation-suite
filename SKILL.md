@@ -2,7 +2,7 @@
 name: ts-computation-suite
 description: >-
   End-to-end transition-state (TS) computation for chemists: accelerated
-  four-stage protocol (chemical preflight, barrier scan, constrained
+  five-stage protocol (chemical preflight, barrier scan, constrained
   reference/Hessian, OptTS, validation), local ORCA/xtb runs, Gaussian/Slurm
   HPC submissions, candidate prefiltering, imaginary-frequency/IRC checks, and
   AI-assisted candidate generation. Use when planning or running a TS search,
@@ -103,7 +103,7 @@ Write these down before generating an input. Most failed TS projects fail here.
 Local ORCA details: [references/local-orca.md](references/local-orca.md).
 Gaussian/Slurm details: [references/hpc-slurm.md](references/hpc-slurm.md).
 
-## The protocol: four mandatory stages + one optional accelerator
+## The protocol: five mandatory stages (P0–P4) + one optional accelerator
 
 ### P0 — Chemical preflight (0.5–2 h)
 
@@ -331,7 +331,7 @@ Read only what the current task needs:
 
 - [references/setup.md](references/setup.md) — install the skill, set
   environment variables, run the doctor, five-minute smoke test.
-- [references/ts-protocol.md](references/ts-protocol.md) — full four-stage
+- [references/ts-protocol.md](references/ts-protocol.md) — full five-stage
   protocol, stop rules, route decision tree, time budget.
 - [references/local-orca.md](references/local-orca.md) — ORCA 6.1 input
   templates, per-point scans, energy/frequency parsing, process discipline.

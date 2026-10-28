@@ -13,7 +13,7 @@ author-specific paths, accounts, or auxiliary skills are required.
 
 ## What it is
 
-- A four-stage protocol: **P0 chemical preflight → P1 barrier scan → P2
+- A five-stage protocol: **P0 chemical preflight → P1 barrier scan → P2
   constrained reference + Hessian → P3 OptTS → P4 validation**.
 - Local ORCA/xtb execution and Gaussian/Slurm execution, with templates.
 - Scripts for candidate prefiltering, per-point independent scans, ORCA/Gaussian
@@ -47,7 +47,7 @@ author-specific paths, accounts, or auxiliary skills are required.
 3. Invoke it by name (`$ts-computation-suite`) or with a request such as:
 
    > Use `$ts-computation-suite` to validate this TS candidate. Start with the
-   > P0 declarations, run the four mandatory stages (and the optional MLIP
+   > P0 declarations, run the five mandatory stages (and the optional MLIP
    > pre-screen where it applies), and report the imaginary frequency, mode
    > localization, IRC endpoints, and spin diagnostics.
 

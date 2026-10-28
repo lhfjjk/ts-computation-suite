@@ -8,6 +8,21 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.2.1] - 2026-10-28
+
+### Added
+
+- `docs/INTRO-VIDEO-SCRIPT.md` — a three-minute narration script, a 30-second
+  short version, a ready-to-paste prompt for an AI video generator, and a
+  fact-check table for the on-screen numbers.
+
+### Fixed
+
+- Documentation now says **five stages (P0–P4)** everywhere. The README,
+  `SKILL.md`, the cover letter, and three reference files still described the
+  protocol as four-stage while the manuscript and the P-labeling used five; the
+  manuscript's revised text is the reference.
+
 ## [0.2.0] - 2026-10-28
 
 ### Added

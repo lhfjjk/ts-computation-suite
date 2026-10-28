@@ -1,7 +1,7 @@
 # Local ORCA / xtb execution
 
 This reference is for running the protocol on a workstation with ORCA 6.1 and
-xtb. It assumes the four-stage protocol in
+xtb. It assumes the five-stage protocol in
 [ts-protocol.md](ts-protocol.md); only the engine-specific parts are here.
 
 ## 1. Environment
