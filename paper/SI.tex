@@ -11,6 +11,7 @@
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Supporting Information: Beyond Candidate Generation: A Validation-First Protocol for AI-Assisted Transition-State Discovery}, pdfauthor={Haofan Li}}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf}
 \setlength{\parindent}{1.1em}
@@ -19,9 +20,10 @@
 
 \title{Supporting Information\\[4pt]
 \large Beyond Candidate Generation: A Validation-First Protocol for AI-Assisted Transition-State Discovery}
-\author{Hao-Fan Li}
+\author{Haofan Li}
 \date{}
 
+\renewcommand{\thetable}{S\arabic{table}}
 \begin{document}
 \maketitle
 
@@ -34,32 +36,48 @@
 \item Connectivity: build a bond graph with a distance criterion; check the intended bonds and any unplanned bond.
 \item Conformers: pre-fold flexible ligands/chains; retain several low-energy conformers.
 \item Reference state: reactant or encounter complex and product, at the same level as the TS.
-\item Candidate filter: hard overlaps, clash ratios, heavy-atom RMSD, connectivity changes.
+\item Candidate filter: hard overlaps ($<1.00$~\AA{}), clash ratios ($<0.75\,\Sigma r_{\mathrm{cov}}$), heavy-atom RMSD, connectivity changes.
 \end{itemize}
 
-\subsection*{S1.2 P1: barrier-region scan}
+\subsection*{S1.2 P0.5: learned-potential pre-screen (optional)}
+The pre-screen sits between P0 and P1 and is the only stage that runs on a
+machine-learned potential (MLIP) instead of on DFT. It is optional, and no gate that
+decides whether a candidate is a transition state depends on it.
+
 \begin{itemize}
-\item Use 4--8 points along the reaction coordinate, not a blind OptTS.
+\item Declare the reaction coordinate before screening: the forming and breaking pairs, the target bond lengths, the charge, and the multiplicity. The screen changes the geometry; it does not change the electronic-state assignment.
+\item Use the potential only inside its applicability domain. For broken-symmetry and open-shell transition-metal systems the verdict describes the learned surface, not the electronic state, and is recorded as a PES mismatch rather than as a basin.
+\item Displace the candidate along the declared coordinate in both directions and relax on the learned surface (the reference implementation defaults to $0.35$~\AA{} per side).
+\item Read the pair of endpoints. Same minimum on both sides: basin-like, discard before any DFT is spent. The two minima differ by exactly the declared forming and breaking bonds: barrier-like, pass the relaxed geometry to P1. Any other difference: the reactive pairs are wrong, and S1.1 is repeated before the screen is run again.
+\item PES mismatch: if the candidate lies more than 60~kcal~mol$^{-1}$ above both endpoints, the learned surface does not support this reaction. Do not read the verdict as a basin; skip the screen and go to P1 (rule 11 of Table~1 of the main text).
+\item Geometry repair: remove hard overlaps (0.83--0.93~\AA{} in the cases reported here) and pull the declared bonds to their target lengths while the coordination sphere is held. Check that the coordination bonds are unchanged to within 0.05~\AA{} before the geometry is used.
+\item Do not budget the repair as saved optimization cycles: ORCA projects the constraints onto the input geometry before the first cycle (measured, Ni--C$^*$ 3.000 $\rightarrow$ 2.150~\AA{}), and the cycles that follow relax the ligand conformers.
+\item Record the model identity and version, the device, the declared pairs, and the verdict with the candidate, so that the pre-screen can be repeated or audited.
+\end{itemize}
+
+\subsection*{S1.3 P1: barrier-region scan}
+\begin{itemize}
+\item Use typically 4--8 points along the reaction coordinate (more when the channel is shallow, has a double bump, or the first scan is inconclusive; the case study in the main text used 16), not a blind OptTS.
 \item Each point is an independent constrained optimization, starting from the previous converged geometry.
 \item Only converged points enter the profile; the highest converged point is the TS guess.
 \item Check the profile for monotonicity, shallow double bumps, and flat regions.
 \end{itemize}
 
-\subsection*{S1.3 P2: constrained reference and Hessian}
+\subsection*{S1.4 P2: constrained reference and Hessian}
 \begin{itemize}
 \item Run a constrained \texttt{Opt + Freq} at the chosen distance.
 \item The lowest modes must involve the declared reactive pair; otherwise do not run OptTS.
 \item Keep the Hessian and the reference geometry; both are reused downstream.
 \end{itemize}
 
-\subsection*{S1.4 P3: OptTS}
+\subsection*{S1.5 P3: OptTS}
 \begin{itemize}
 \item Read the P2 Hessian (\texttt{InHess Read} in ORCA; \texttt{readfc} in Gaussian).
 \item If displacing, scale by the target bond-length change ($\sim$0.05~\AA{}), not the maximum atomic displacement.
-\item Apply the stop rules in Table~\ref{tab:stop-si}.
+\item Apply the stop rules collected in Table~1 of the main text.
 \end{itemize}
 
-\subsection*{S1.5 P4: validation}
+\subsection*{S1.6 P4: validation}
 \begin{itemize}
 \item Exactly one significant imaginary frequency.
 \item The imaginary mode moves the declared reactive pair; localization is not below 15\%.
@@ -70,6 +88,8 @@
 \end{itemize}
 
 \section*{S2. Input templates}
+
+All templates use the level of theory of Section S3 unless stated. \texttt{\%maxcore 1100} is a per-core limit (1100~MB), so the twelve-core examples need about 13~GB of scratch space; ORCA stops with an error when a per-core limit cannot be satisfied.
 
 \subsection*{S2.1 ORCA: per-point constrained optimization}
 \begin{verbatim}
@@ -135,7 +155,6 @@ end
   Hess_Filename "L2-TSopt.hess"
   Direction both
   PrintLevel 2
-  Trajectory True
 end
 * xyzfile 0 2 L2-TSopt.xyz
 \end{verbatim}
@@ -157,6 +176,8 @@ B 1 2 1.500 F
 B 3 4 2.100 F
 
 \end{verbatim}
+
+The level of theory in the Gaussian templates is an example; substitute the level used in the production runs (the case studies used TPSS-D3BJ/def2-SVP with SMD(toluene), see Section S3).
 
 \subsection*{S2.6 Gaussian: OptTS reading the reference checkpoint}
 \begin{verbatim}
@@ -194,85 +215,79 @@ echo "EXIT=$?"
 date
 \end{verbatim}
 
+\subsection*{S2.8 Learned-potential pre-screen and geometry repair}
+Both tools belong to the same package, run without a quantum-chemistry engine,
+and are called on an \texttt{xyz} candidate. The reactive pairs are given
+explicitly and the model is named on the command line, so that a reported
+verdict can be reproduced:
+\begin{verbatim}
+# basin-like / barrier-like verdict (pairs are 1-based)
+python scripts/ts_mlip_screen.py \
+    --cand candidate.xyz \
+    --forming 21,72 --breaking 1,21 \
+    --charge 0 --spin 2 \
+    --model orb_v3_conservative_omol --device cuda
+
+# geometry repair: i,j,d are 0-based, d in A
+python scripts/mlip_preopt.py \
+    --in raw.xyz --out repaired.xyz \
+    --constraint 20,56,1.75 \
+    --freeze-shell 1
+\end{verbatim}
+\texttt{ts\_mlip\_screen.py} reports one of \texttt{BARRIER-LIKE},
+\texttt{BASIN}, \texttt{WRONG-CHANNEL}, or \texttt{PES-MISMATCH} per candidate;
+with \verb|--bs| (broken-symmetry singlet) it restricts itself to the geometry
+and issues no connectivity verdict. Indices are 1-based there and 0-based in
+\texttt{mlip\_preopt.py}, which follows the convention of the ORCA
+\texttt{\%geom Constraints} block. A run returns either a repaired geometry or a
+pair of relaxation endpoints; neither is a transition-state judgement, and the
+endpoints are read as described in S1.2.
+
 \section*{S3. Case-study details}
 
 The systems in the main-text case studies are 84--98 atom Ni/Fe complexes with
 organic ligands, treated with TPSS-D3BJ/def2-SVP (RIJCOSX, SMD) for geometry
-and frequency calculations, and higher-level single points where noted. The
-numbers below are the observations discussed in the main text.
+and frequency calculations, and with higher-level single points where noted.
+The numbers quoted below are the observations discussed in the main text; the
+case numbers are those of Table~3 there. RIJCOSX is retained because it appears
+in the production inputs; for a non-hybrid functional the COSX approximation
+acts on no Hartree--Fock exchange.
 
-\begin{table}[h]
-\centering
-\caption{Internal case-study observations.}
-\label{tab:cases-si}
-\small
-\begin{tabularx}{\linewidth}{@{}p{3.2cm}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
-\toprule
-Case & Observation & Lesson \\
-\midrule
-Per-point scan & 16/16 points converged after three collective scans failed; the problematic point converged in 44 cycles & A local unit of failure is more robust than a collective scan \\
-Mode displacement & 0.18~\AA{} maximum displacement changed the reactive bond by $-0.31$~\AA{}; 183 cycles into the reactant basin & Scale by the target bond change ($\sim$0.05~\AA{}) \\
-Second-order saddle & Two rounds returned the same geometry and energy (0.003 kcal mol$^{-1}$); a finer grid confirmed the soft mode & Stop after the second repeat; disclose or rigidify \\
-Conformer-dominated R/S & Ligand-overlay RMSD 1.62~\AA{} between R and S intermediates & Search conformers before claiming stereoselectivity \\
-Generative model OOD & Four candidates passed the filter but had 3.6--4.4~\AA{} RMSD to the reference & Test the applicability domain on the system class \\
-\bottomrule
-\end{tabularx}
-\end{table}
 
 \section*{S4. AI candidate generation: practical notes}
 
 \subsection*{S4.1 UniTS-Gen}
-UniTS uses a 0-based \texttt{reactive\_atom\_idx}, whereas many post-processing
+The UniTS code package (which implements the UniTS-Gen model) takes \texttt{reactive\_atom\_idx} as 0-based, whereas many post-processing
 scripts use 1-based atom indices. Convert explicitly. The intended use is
 multi-sampling: generate ten candidates, prefilter, and send only a few to DFT.
-Single-shot correctness is moderate; the published benchmark reports that
+Single-shot correctness is moderate; the package's published benchmark reports that
 multi-sampling recovers all five previously failed cases. In an internal test
 on an 84-atom Ni broken-symmetry system, four candidates passed the geometric
 filter but had 3.6--4.4~\AA{} heavy-atom RMSD to the reference; the model was out
 of distribution for that system class.
 
-\subsection*{S4.2 ORCA GOAT-TS}
-GOAT-TS is a built-in, non-ML search. A minimal input is:
+\subsection*{S4.2 ORCA GOAT-REACT}
+GOAT-REACT is a built-in, non-ML search. A minimal input is:
 \begin{verbatim}
-! GOAT-TS B3LYP D3BJ def2-SVP TightSCF
+! GOAT-REACT B3LYP D3BJ def2-SVP TightSCF
 %pal nprocs 12 end
 %maxcore 1100
-%GOAT
-  USEGOAT true
-  MAXITER 30
-  REACTIVEATOMS {0 4 5} end
+%geom
+  Constraints
+    { C 0 C }
+    { C 4 C }
+    { C 5 C }
+  end
 end
 * xyz 0 1
 <coordinates>
 *
 \end{verbatim}
-\texttt{REACTIVEATOMS} uses braces and 0-based indices. GOAT is a search tool;
+GOAT-REACT explores reaction pathways automatically; the reacting atoms can be held with Cartesian constraints in \texttt{\%geom}, and ORCA counts atoms from zero. For Cartesian constraints the initial position is kept and no target value is given. No \texttt{\%goat} block is used, so the defaults apply (its \texttt{MAXITER} key bounds the geometry iterations per worker, not the number of search steps). GOAT is a search tool;
 its output still goes through P2--P4. It becomes expensive for large flexible
 systems and is best used for channel discovery or medium-sized systems.
 
 \section*{S5. Stop rules}
-
-\begin{table}[h]
-\centering
-\caption{Stop rules used in the protocol.}
-\label{tab:stop-si}
-\small
-\begin{tabularx}{\linewidth}{@{}p{0.4cm}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
-\toprule
-\# & Symptom & Action \\
-\midrule
-1 & Lowest mode at P2 does not involve the reactive pair & Do not run OptTS; change constraint/conformer/guess \\
-2 & OptTS energy decreases monotonically for $>50$ cycles while the reactive bond is unchanged & Wrong basin; stop and return to P1/P2 \\
-3 & Two displaced OptTS runs return to the same geometry and energy ($<0.01$ kcal mol$^{-1}$) & Stop; accept with disclosure, rigidify, or run IRC along the reactive mode \\
-4 & Two or three shallow imaginary modes around $-15$ to $-25$ cm$^{-1}$ & Flat transition valley; use the last geometry's frequency as a reference barrier and say so \\
-5 & Imaginary-mode localization below 15\% & Delocalized soft mode; not the target coordinate \\
-6 & \texttt{SADDLE-1} and the declared pair matches, but key bond lengths are wrong & Wrong channel; do not report this barrier \\
-7 & IRC or relaxation endpoint is not the intended reactant/product & No barrier claim; return to P1/P2 \\
-8 & Single-point $\langle S^2\rangle$ differs from the geometry job & Wrong electronic state; repeat the full spin setup \\
-9 & R/S difference without a conformer search & Not a stereoselectivity result; do the ensemble first \\
-10 & xtb and DFT disagree & DFT wins; xtb is for folding only \\
-\bottomrule
-\end{tabularx}
-\end{table}
+The stop rules applied at each stage are collected in Table~1 of the main text; they are reproduced here only as a pointer so that the two documents cannot drift apart.
 
 \end{document}
