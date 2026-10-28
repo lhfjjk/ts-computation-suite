@@ -85,6 +85,26 @@ assets/templates/         ORCA/Gaussian/Slurm input templates
 4. Keep the output reproducible: report method, spin, frequencies, IRC, and
    uncertainty.
 
+## Versioning
+
+Releases follow [Semantic Versioning](https://semver.org/):
+
+- **MAJOR** — a gate's pass/fail semantics or a script's command-line interface
+  changes incompatibly.
+- **MINOR** — a new stage, script, or capability that is backward compatible.
+- **PATCH** — fixes, documentation, and wording only.
+
+The version of record is `version:` in [`CITATION.cff`](CITATION.cff). A release
+is only complete when, in the same change:
+
+1. `version:` and `date-released:` are bumped in `CITATION.cff`;
+2. a dated section is added to [CHANGELOG.md](CHANGELOG.md);
+3. the commit is tagged `vX.Y.Z`;
+4. a GitHub Release is published, with the changelog section as its notes.
+
+The protocol text, the figure, and the scripts that implement it are versioned
+together: the paper in [`paper/`](paper/) ships as part of the same release.
+
 ## Citation
 
 A companion preprint describing the protocol and case evidence is in
