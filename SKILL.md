@@ -103,7 +103,7 @@ Write these down before generating an input. Most failed TS projects fail here.
 Local ORCA details: [references/local-orca.md](references/local-orca.md).
 Gaussian/Slurm details: [references/hpc-slurm.md](references/hpc-slurm.md).
 
-## The four-stage protocol
+## The protocol: four mandatory stages + one optional accelerator
 
 ### P0 — Chemical preflight (0.5–2 h)
 
@@ -111,6 +111,41 @@ Declarations above, plus a candidate prefilter. Use
 `scripts/ts_prefilter.py` to reject hard overlaps, clashes, wrong connectivity,
 and candidates far from the intended reactive distance. If the candidate came
 from a generative model, this is where most of them should die.
+
+### P0.5 — Learned-potential pre-screen (optional; preferred where applicable) (seconds per candidate)
+
+Before spending hours on P1, run the candidate through a foundation machine-learned
+potential: `scripts/ts_mlip_screen.py`. It works at the geometry level only.
+
+1. **Repair** — remove hard overlaps and pull the declared bonds to their target
+   lengths (`scripts/mlip_preopt.py`). Measured: 0.83–0.93 Å overlaps → 2.07–2.97 Å,
+   coordination sphere unchanged, radical face rotated by only ~5°.
+2. **Screen** — push the candidate along the declared reaction coordinate in both
+   directions and relax on the MLIP surface.
+
+| verdict | meaning | action |
+|---|---|---|
+| `BARRIER-LIKE` | two distinct endpoints; bond-graph delta = the declared forming/breaking pairs | proceed to P1 |
+| `BASIN` | both descents reach the same minimum | drop the candidate |
+| `WRONG-CHANNEL` | endpoints differ, but not by the declared pairs | return to P0 and re-check the reactive pairs |
+| `PES-MISMATCH` | candidate lies >60 kcal above both endpoints | the model does not support this reaction — go to P1, do not use this verdict |
+| `SKIP-BS` | `--bs` declared (broken-symmetry singlet) | geometry columns only |
+
+**Applicability domain — measured, not assumed.** Five DFT-validated saddles
+(S_H2 coupling, −574…−581 cm⁻¹, 84–98 atoms, broken-symmetry singlets) were all
+`PES-MISMATCH` (83–85 kcal): the MLIP surface relaxes the biradical straight to the
+coupled product. One DFT minimum was correctly `BASIN`. So on broken-symmetry
+organometallics this stage is a **geometry-repair tool only** — it never earns a "go".
+On closed-shell or high-spin systems it may gate candidates, but no positive control
+exists yet: verify the first case by hand.
+
+**It does not save DFT cycles by satisfying constraints.** ORCA projects the constraints
+onto the input geometry before cycle 1 (measured: Ni–C* 3.000 → 2.150 Å in the first
+printed cycle), and the 142–265 cycles that follow are ligand-conformer relaxation.
+The pre-screen repairs bad starts; it does not replace conformer search.
+
+Requirements: `torch` + `orb-models` in a separate environment, passed via
+`MLIP_PYTHON`. The core scripts stay standard-library only; this stage is strictly optional.
 
 ### P1 — Barrier-region scan (1–20 h)
 
@@ -181,6 +216,10 @@ Full protocol and stop rules: [references/ts-protocol.md](references/ts-protocol
 # 1) prefilter candidate guesses
 python scripts/ts_prefilter.py --cand guesses.xyz --reactive 21,57 \
     --forming 21,57 --write-pass passing.xyz
+
+# 1b) optional MLIP pre-screen (needs torch + orb-models; MLIP_PYTHON points to that env)
+$MLIP_PYTHON scripts/ts_mlip_screen.py --cand passing.xyz \
+    --forming 21,57 --charge 0 --spin 2 --out screen/
 
 # 2) per-point independent scan (generates and runs)
 python scripts/ts_scan_pts.py --xyz passing.xyz --pair 21,57 \
@@ -267,6 +306,9 @@ These are the highest-value part of the kit. They prevent 10–20 h dead ends.
 | `scripts/gauss_ts_prep.py` | Generate Gaussian L1/L2/IRC/SP ladder + sbatch |
 | `scripts/gauss_verify.py` | Gaussian verdict: frequencies, termination, thermo, ⟨S²⟩ |
 | `scripts/preflight_check.py` | Structure sanity gate used by the ladder runner |
+| `scripts/ts_mlip_screen.py` | Optional MLIP pre-screen: basin / barrier / channel verdict at geometry level |
+| `scripts/mlip_preopt.py` | Optional MLIP geometry repair: remove overlaps, satisfy declared bond constraints |
+| `scripts/mlip_tools.py` | Shared MLIP backend (OrbMol / MACE calculators, constraints, conformer search) |
 
 ## Reporting checklist
 

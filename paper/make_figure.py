@@ -61,7 +61,8 @@ card(xs[0], y, w, h,
      "ai")
 card(xs[1], y, w, h,
      "2. Physics\nprefilter",
-     ["reactive pairs", "connectivity /\nclash", "RMSD / spin\nsanity",
+     ["reactive pairs", "connectivity / clash\nRMSD / spin sanity",
+      "MLIP pre-screen\n(where valid)",
       "most candidates\ndie here"],
      "phys")
 card(xs[2], y, w, h,

@@ -47,12 +47,15 @@ author-specific paths, accounts, or auxiliary skills are required.
 3. Invoke it by name (`$ts-computation-suite`) or with a request such as:
 
    > Use `$ts-computation-suite` to validate this TS candidate. Start with the
-   > P0 declarations, run the four-stage protocol, and report the imaginary
-   > frequency, mode localization, IRC endpoints, and spin diagnostics.
+   > P0 declarations, run the four mandatory stages (and the optional MLIP
+   > pre-screen where it applies), and report the imaginary frequency, mode
+   > localization, IRC endpoints, and spin diagnostics.
 
 4. On first use, run `python scripts/doctor.py`. If a tool is not found, set
    `TS_ORCA_EXE`, `ORCA_DIR`, `TS_G16_EXE`, or `TS_XTB_EXE`; see
-   [references/setup.md](references/setup.md).
+   [references/setup.md](references/setup.md). The optional MLIP pre-screen
+   (P0.5) additionally needs PyTorch and `orb-models` in a separate
+   environment, pointed to by `MLIP_PYTHON`; the rest of the package does not.
 
 5. The agent reads [SKILL.md](SKILL.md) for the protocol and
    [references/](references/) for details. No manual command sequence is
@@ -69,7 +72,8 @@ For manual execution, the exact ORCA/Gaussian commands are in
 SKILL.md                  entry point and protocol summary
 references/               setup, protocol, local ORCA, HPC, pitfalls,
                           checklists, UniTS/GOAT, background, AI role
-scripts/                  doctor, prefilter, scan, ladders, verifiers
+scripts/                  doctor, prefilter, scan, ladders, verifiers,
+                          optional MLIP pre-screen
 assets/templates/         ORCA/Gaussian/Slurm input templates
 ```
 
