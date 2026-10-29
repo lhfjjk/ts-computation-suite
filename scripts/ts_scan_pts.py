@@ -73,13 +73,16 @@ def parse_constraints(spec: str):
     return out
 
 
-def route(method: str, basis: str, disp: str, extra: str, rijcosx: bool = True):
+def route(method: str, basis: str, disp: str, extra: str, rijcosx: bool = True,
+          uks: bool = False):
     bits = ["! Opt", method]
     if disp and disp.lower() != "none":
         bits.append(disp)
     bits.append(basis)
     if rijcosx:
         bits.append("RIJCOSX")
+    if uks:
+        bits.append("UKS")
     if extra:
         bits.extend(extra.split())
     return " ".join(bits)
@@ -102,7 +105,8 @@ def geom_block(maxiter: int, cons):
 def make_input(atoms, args, cons, geom_name: str):
     n = len(atoms)
     text = (
-        route(args.method, args.basis, args.disp, args.extra, not args.no_rijcosx)
+        route(args.method, args.basis, args.disp, args.extra, not args.no_rijcosx,
+              uks=(args.uks or args.mult > 1))
         + solvent_block(args.solvent)
         + f"\n%pal nprocs {args.nprocs} end\n%maxcore {args.maxcore}\n"
         + geom_block(args.maxiter, cons)
@@ -257,6 +261,8 @@ def main():
     ap.add_argument("--basis", default="def2-SVP")
     ap.add_argument("--disp", default="D3BJ", help="D3BJ, D4, or none")
     ap.add_argument("--solvent", default=None, help="SMD solvent name, e.g. Toluene")
+    ap.add_argument("--uks", action="store_true",
+                    help="force UKS; automatically enabled when --mult > 1")
     ap.add_argument("--extra", default="", help="extra route keywords")
     ap.add_argument("--no-rijcosx", action="store_true",
                     help="omit RIJCOSX (for methods/bases where it is unavailable)")

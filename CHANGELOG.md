@@ -8,6 +8,21 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.3.1] - 2026-10-30
+
+### Fixed
+
+- `scripts/ts_scan_pts.py` never emitted `UKS`, so a scan with `--mult > 1`
+  silently ran at the restricted open-shell (ROHF) level instead of UKS.
+  `UKS` is now added automatically when `--mult > 1`, and `--uks` forces it for
+  closed-shell systems that need a broken-symmetry-capable SCF.
+
+### Documentation
+
+- Noted that points after the first read `prev.xyz`, which only exists when the
+  runner executes them sequentially; for a Slurm array copy `start.xyz` to
+  `prev.xyz` in each directory before launching.
+
 ## [0.3.0] - 2026-10-30
 
 ### Changed
