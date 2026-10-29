@@ -74,6 +74,27 @@ Out of scope: excited-state/nonadiabatic dynamics, strong multireference
 systems where a single DFT surface is not meaningful, and transport-limited
 reactors where the intrinsic barrier is not the observed rate.
 
+## Default rule: try the learned potential first
+
+When a learned potential (MLIP) is available, use it **before** spending DFT
+time on a candidate. The default order is:
+
+1. **Repair** the geometry with `scripts/mlip_preopt.py` — remove hard overlaps,
+   pull the declared bonds to their target lengths (seconds per structure).
+2. **Screen** the candidate with `scripts/ts_mlip_screen.py` — basin / barrier /
+   channel verdict, where the electronic state is inside the model's domain.
+3. **Only then DFT**: P1 scan -> P2 reference + Hessian -> P3 OptTS.
+
+This is a default, not a gate: a `PES-MISMATCH` verdict means the model does not
+support the reaction and the candidate goes straight to DFT. The measured domain
+is in P0.5 — briefly: good for geometry and for relative energies of closed-shell
+/ high-spin systems, unusable for broken-symmetry singlets, frequencies,
+spin-state energetics, BDFE, or final barriers.
+
+**Never** let the learned potential decide a number that enters a paper: energies,
+barriers, thermochemistry, and spin diagnostics stay with DFT. It decides *which
+geometry reaches DFT* and *which candidate is worth DFT at all*.
+
 ## Before any calculation: five declarations
 
 Write these down before generating an input. Most failed TS projects fail here.

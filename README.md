@@ -84,7 +84,8 @@ assets/templates/         ORCA/Gaussian/Slurm input templates
 
 ## Design principles
 
-1. Move failure into cheap calculations.
+1. Move failure into cheap calculations — including the learned potential: use
+   MLIP repair and screening before DFT wherever its applicability domain allows.
 2. Reuse Hessians, conformers, and spin states.
 3. Stop early when the evidence says the target is not a first-order saddle.
 4. Keep the output reproducible: report method, spin, frequencies, IRC, and

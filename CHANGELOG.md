@@ -8,6 +8,25 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.3.0] - 2026-10-30
+
+### Changed
+
+- **New default rule: try the learned potential first.** When an MLIP is
+  available, the order is now repair -> screen -> DFT. `SKILL.md` gained a
+  top-level section stating the rule and its limits: the MLIP decides which
+  geometry and which candidate reach DFT, never the numbers that enter a paper.
+- The README design principles were updated to match (principle 1 now names the
+  learned potential).
+
+### Notes
+
+- This is a behavioural default, not a gate: a `PES-MISMATCH` verdict skips the
+  screen and goes straight to DFT.
+- The measured applicability domain is unchanged (P0.5): geometry and relative
+  energies of closed-shell / high-spin systems; not broken-symmetry singlets,
+  frequencies, spin-state energetics, BDFE, or final barriers.
+
 ## [0.2.2] - 2026-10-28
 
 ### Changed
