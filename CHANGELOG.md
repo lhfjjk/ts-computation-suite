@@ -8,6 +8,20 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.4.1] - 2026-10-31
+
+### Fixed
+
+- Corrected the ORCA GOAT note in `references/unitts-goat.md`. ORCA's
+  `GFN2XTB`/`GFN1XTB`/`GFN0XTB` methods call an **external** xtb binary
+  (`otool_xtb`, version 6.7.1+), as the ORCA 6.1 manual states; they are not
+  built in. The recommended no-install uphill option is now `GFNUPHILL GFNFF`
+  for `GOAT-TS`. Bond-breaking modes (`GOAT-EXPLORE`, `GOAT-REACT`) cannot use
+  GFN-FF and would need that external interface, which this package does not
+  require.
+- The 0.4.0 changelog entry claimed the opposite; it is corrected in place and
+  this patch records the correction.
+
 ## [0.4.0] - 2026-10-31
 
 ### Changed
@@ -23,8 +37,8 @@ from the section below.
 - `SKILL.md`, `README.md`, `references/{setup,local-orca,ts-protocol,pitfalls,
   ai-role,unitts-goat}.md`, the video script, the manuscript, and the cover
   letter were aligned: local execution is ORCA plus an optional MLIP layer. The
-  only remaining xTB mention is ORCA GOAT's built-in GFN2-xTB uphill stage,
-  which needs no separate binary.
+  only remaining xTB mention now documents ORCA's external-xTB uphill option
+  (`GFNUPHILL GFN2XTB`), which the package does not require.
 - `references/ts-protocol.md`: the title now says five-stage protocol
   (P0–P4); it still said four-stage in the heading while the body used five.
 

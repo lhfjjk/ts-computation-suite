@@ -5,7 +5,7 @@ abstract: "A portable, validation-first protocol for AI-assisted transition-stat
 authors:
   - family-names: Li
     given-names: Hao-Fan
-version: 0.4.0
+version: 0.4.1
 date-released: 2026-10-31
 license: MIT
 repository-code: "https://github.com/lhfjjk/ts-computation-suite"
