@@ -7,7 +7,7 @@ validation) is independent of which source you use.
 | | UniTS-Gen (ML) | ORCA GOAT-TS (built in) | Manual / template |
 |---|---|---|---|
 | Install | Python env + torch + weights (~3 GB) | none (ORCA 6.1+) | none |
-| Cost | generation is seconds; every candidate needs DFT | exploration costs CPU; can use xTB for the uphill stage | cheapest if the target is known |
+| Cost | generation is seconds; every candidate needs DFT | exploration costs CPU; the uphill stage can use ORCA's built-in GFN2-xTB (no separate install) | cheapest if the target is known |
 | Strength | learned prior of what a TS looks like; change the reactive atoms to enumerate channels | physically rigorous exploration; can specify reacting atoms/bonds | fastest when you already know the step |
 | Weakness | single-shot ~42% correct; must multi-sample; out of distribution for large BS organometallic | can be slow for 70+ flexible atoms | may miss conformers/channels |
 
@@ -150,7 +150,8 @@ probe:
   `MAXITER`, `NWORKERS`, `REACTIVEATOMS`, `RANDOMSEED`, `MAXEN`.
 - `REACTIVEATOMS` uses braces: `REACTIVEATOMS {0 4 5} end`; comma/space-only
   forms are rejected. Indices are **0-based**.
-- `GFNUPHILL GFN2XTB` (or `GFN1XTB`) uses xTB for the cheap uphill stage.
+- `GFNUPHILL GFN2XTB` (or `GFN1XTB`) uses ORCA's built-in GFN2-xTB for the
+  cheap uphill stage; it needs no separate xtb binary.
 - Rejected in `%GOAT`: `NSTEPS`, `RUNMODE`, `NPROCS`, `MAXCORE`, `TEMP`,
   `DOSOLV`, `OPTIMIZER`, `PRINTLEVEL`, `FIXEDATOMS`, `ENSEMBLE`, `MAXCONF`,
   `ETOL`, `GFN`, `COARSE`, `UPHILL`, `SCAN_GOAT_*`.
@@ -177,9 +178,9 @@ end
 *
 ```
 
-Use xTB uphill (`GFNUPHILL GFN2XTB`) for a cheaper exploration, then re-optimize
-the candidate at the DFT level. GOAT is a search tool, not a substitute for
-`OptTS` + `Freq` + IRC.
+Use ORCA's built-in GFN2-xTB uphill stage (`GFNUPHILL GFN2XTB`) for a cheaper
+exploration, then re-optimize the candidate at the DFT level. GOAT is a search
+tool, not a substitute for `OptTS` + `Freq` + IRC.
 
 ### 2.3 Cost and constraints
 

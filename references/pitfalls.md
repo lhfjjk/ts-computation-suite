@@ -58,7 +58,7 @@ checklist rather than read linearly.
 | A failed scan point is used as a data point | The parser accepted non-converged steps | Only accept `CONVERGED` points; mark failed points and skip them |
 | The profile is monotonic but the TS is missing | The scan never reached the barrier region, or the coordinate is wrong | Check the coordinate definition (metal-centered substitution vs C–C distance); extend the scan |
 | Increasing `MaxIter` does not help | The starting geometry is in the wrong basin | Stop; return to P1/P2; a larger MaxIter only makes the wrong answer more expensive |
-| xtb energies or bond lengths are quoted in a paper | GFN2 is too coarse for Ni/Fe coordination | Use xtb for folding/conformer search only; all reported numbers from DFT |
+| MLIP energies or bond lengths are quoted in a paper | A learned potential is a screening tool, not evidence; on this project's Ni/Fe systems conformer/stereoisomer differences were off by ~2.6 kcal mol⁻¹ | Use the MLIP for repair, conformer folding, and screening only; all reported numbers from DFT |
 
 ## F. Process and monitoring
 

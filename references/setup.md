@@ -9,7 +9,7 @@ author's local paths, accounts, or auxiliary skills.
 |---|---|---|
 | Python | yes | 3.9+; the scripts use only the standard library |
 | ORCA 6.x | for the ORCA route | `orca` on `PATH`, or set `TS_ORCA_EXE` |
-| xtb 6.x | optional | conformer pre-folding only; set `TS_XTB_EXE` |
+| MLIP environment | optional | geometry repair, conformer folding, pre-screen; `torch` + `orb-models` (or `mace-torch`), pointed to by `MLIP_PYTHON` |
 | Gaussian 16 | for the Gaussian route | `g16` on `PATH`, or set `TS_G16_EXE` |
 | Slurm | for the HPC route | `sbatch`/`squeue`; not needed for local runs |
 | SSH | optional | only for a remote cluster; `TS_SSH_ALIAS` |
@@ -40,7 +40,7 @@ The scripts read these variables; all are optional if the tool is on `PATH`.
 ```bash
 export TS_ORCA_EXE=/path/to/orca          # or ORCA_EXE
 export ORCA_DIR=/path/to/orca-directory   # used by generated run_chain.sh
-export TS_XTB_EXE=/path/to/xtb
+export MLIP_PYTHON=/path/to/mlip-env/bin/python   # torch + orb-models
 export TS_G16_EXE=g16
 export TS_SBATCH=sbatch
 export TS_SSH_ALIAS=mycluster             # an entry in ~/.ssh/config
@@ -69,8 +69,9 @@ python scripts/doctor.py --json
 python scripts/doctor.py --strict    # fail if neither ORCA nor Gaussian exists
 ```
 
-It checks Python, compiles every script, locates ORCA/Gaussian/xtb/Slurm/SSH,
-and runs four self-tests:
+It checks Python, compiles every script, locates ORCA/Gaussian/Slurm/SSH,
+verifies that `MLIP_PYTHON` (when set) can import `torch` and `orb_models`, and
+runs four self-tests:
 
 1. generate a per-point ORCA scan;
 2. generate a Gaussian L1/L2 ladder;
@@ -117,7 +118,7 @@ ts-computation-suite/
   references/
     setup.md                this file
     ts-protocol.md          five-stage protocol + stop rules
-    local-orca.md           ORCA/xtb execution
+    local-orca.md           ORCA execution + optional MLIP helper
     hpc-slurm.md            Gaussian/Slurm execution
     pitfalls.md             failure catalogue
     checklists.md           printable P0-P4/HPC/reporting checklists
@@ -135,6 +136,9 @@ ts-computation-suite/
     gauss_ts_prep.py        Gaussian L1/L2/IRC/SP generator + sbatch
     gauss_verify.py         Gaussian TS verdict
     preflight_check.py      structure sanity gate
+    ts_mlip_screen.py       optional MLIP pre-screen (P0.5)
+    mlip_preopt.py          optional MLIP geometry repair
+    mlip_tools.py           optional MLIP backend: sp/opt/scan/conf
   assets/templates/         ORCA/Gaussian/Slurm templates
 ```
 
@@ -143,8 +147,9 @@ ts-computation-suite/
 - **Windows:** use Git Bash or PowerShell; avoid paths with spaces for
   `run_chain.sh`. The ladder runner detects ORCA with PowerShell on Windows and
   `pgrep` on Linux.
-- **Linux/macOS:** the scripts are standard-library Python; make sure `orca`,
-  `g16`, and `xtb` are on `PATH` or set the variables above.
+- **Linux/macOS:** the scripts are standard-library Python; make sure `orca` and
+  `g16` are on `PATH` or set the variables above. The MLIP helper additionally
+  needs an environment with `torch` + `orb-models`.
 - **Chinese/non-ASCII paths:** ORCA, Gaussian, and some viewers can fail
   silently. Use an ASCII working directory for production; if you must use a
   non-ASCII path, verify every output file was written.

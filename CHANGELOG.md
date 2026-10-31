@@ -8,6 +8,40 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.4.0] - 2026-10-31
+
+### Changed
+
+- **xtb is no longer part of the toolchain.** The learned potential takes over
+  every job xtb did: geometry pre-optimization (`mlip_preopt.py`), conformer
+  folding (`mlip_tools.py conf`), and rough relaxed scans (`mlip_tools.py scan`).
+  Measured on the author's workstation (RTX 2080 SUPER): 8 butane conformers in
+  4 s, a 52-atom Ni complex pre-optimized in 2.2 s, a 4-point relaxed scan in 3 s.
+  The applicability domain is unchanged (see P0.5 in `SKILL.md`).
+- `doctor.py` no longer looks for `xtb`/`TS_XTB_EXE`; it verifies `MLIP_PYTHON`
+  and checks that the environment imports `torch` + `orb_models`.
+- `SKILL.md`, `README.md`, `references/{setup,local-orca,ts-protocol,pitfalls,
+  ai-role,unitts-goat}.md`, the video script, the manuscript, and the cover
+  letter were aligned: local execution is ORCA plus an optional MLIP layer. The
+  only remaining xTB mention is ORCA GOAT's built-in GFN2-xTB uphill stage,
+  which needs no separate binary.
+- `references/ts-protocol.md`: the title now says five-stage protocol
+  (P0–P4); it still said four-stage in the heading while the body used five.
+
+### Removed
+
+- The `TS_XTB_EXE` variable and the xtb requirement row.
+
+### Notes
+
+- MLIP conformer ranking is a heuristic: keep 3–5 structures and re-optimize
+  them at the DFT level. MLIP energies and bond lengths never enter a paper; on
+  this project's Ni/Fe systems the conformer/stereoisomer error was
+  ~2.6 kcal mol⁻¹, and broken-symmetry singlets are outside the model's domain.
+- Without an MLIP environment, conformer search falls back to ORCA GOAT or any
+  external generator; the protocol does not depend on one folding engine.
+- The paper PDFs were rebuilt from the updated sources in `paper/`.
+
 ## [0.3.1] - 2026-10-30
 
 ### Fixed

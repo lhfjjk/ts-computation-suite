@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""提交前结构体检 (pre-flight check) —— ORCA/xtb 工作流技能自带工具
+"""提交前结构体检 (pre-flight check) —— ORCA 工作流技能自带工具
 
 通用用法(推荐给 runner 做门禁):
     python preflight_check.py --job <作业名> --dir <工作目录>     # PASS/WARN/FAIL/PEND, FAIL 时 exit 1

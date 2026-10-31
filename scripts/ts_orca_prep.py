@@ -261,7 +261,7 @@ def main():
         print(f"  ! structure contains {', '.join(tms)}. The paper's dataset level "
               "(B3LYP-D3BJ/def2-SVP)\n    is a cheap level chosen for dataset "
               "consistency and is NOT the recommended\n    choice for transition-"
-              "metal systems. Per the orca-xtb-workflow functional\n    guide, "
+              "metal systems. Per the local ORCA functional\n    guide, "
               "use a pure/low-HF functional for optimisation (TPSS-D3BJ or\n    "
               "r2SCAN-3c) and a higher single-point level (TPSS0-D4 or PBE0-D4 "
               "with\n    def2-TZVP). Optimisation, frequency and IRC must all stay "

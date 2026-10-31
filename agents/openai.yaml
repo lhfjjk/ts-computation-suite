@@ -1,4 +1,4 @@
 interface:
   display_name: "TS Computation Suite"
   short_description: "Accelerated TS search with ORCA and Slurm Gaussian"
-  default_prompt: "Use $ts-computation-suite to plan and run an accelerated transition-state search. First confirm the reactive pairs, charge/multiplicity, accessible spin surfaces, and connectivity. Then choose local ORCA or Slurm Gaussian, run the four-stage protocol, and validate the imaginary frequency, mode localization, key bond lengths, and IRC endpoints before reporting a barrier."
+  default_prompt: "Use $ts-computation-suite to plan and run an accelerated transition-state search. First confirm the reactive pairs, charge/multiplicity, accessible spin surfaces, connectivity, conformers, and reference state. Then repair and fold with the optional MLIP layer where it applies, choose local ORCA or Slurm Gaussian, run the five-stage protocol (P0-P4), and validate the imaginary frequency, mode localization, key bond lengths, IRC endpoints, and spin diagnostics before reporting a barrier."

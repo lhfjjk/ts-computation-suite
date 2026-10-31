@@ -4,7 +4,7 @@ description: >-
   An AI-assisted computational chemistry toolkit built around transition-state
   discovery: a five-stage validation-first protocol (chemical preflight,
   barrier scan, constrained reference/Hessian, OptTS, validation), local
-  ORCA/xtb runs, Gaussian/Slurm HPC submissions, candidate prefiltering,
+  ORCA runs, Gaussian/Slurm HPC submissions, candidate prefiltering,
   imaginary-frequency/IRC checks, and AI-assisted candidate generation. The
   same gates and rules also serve reaction energies, bond dissociation free
   energies, conformer ensembles, spin-state checks, geometry repair, and job
@@ -21,7 +21,7 @@ metadata:
 
 A practical, engine-aware kit for finding and validating transition states
 without burning days on a wrong guess. It packages the protocol, the local
-ORCA/xtb commands, the Gaussian/Slurm route, the failure-mode gates, and the
+ORCA commands, the Gaussian/Slurm route, the failure-mode gates, and the
 AI-assisted parts that actually worked in real projects.
 
 **The one idea:** acceleration does not come from a magic keyword. It comes
@@ -37,7 +37,8 @@ UniTS-Gen/GOAT interfaces are documented in
 labor is in [references/ai-role.md](references/ai-role.md).
 
 **First run:** `python scripts/doctor.py` checks Python, compiles every script,
-locates ORCA/Gaussian/xtb/Slurm/SSH, and runs four generator/parser self-tests.
+locates ORCA/Gaussian/Slurm/SSH, verifies the optional MLIP environment when
+`MLIP_PYTHON` is set, and runs four generator/parser self-tests.
 Setup and environment variables are in
 [references/setup.md](references/setup.md).
 
@@ -81,9 +82,12 @@ time on a candidate. The default order is:
 
 1. **Repair** the geometry with `scripts/mlip_preopt.py` — remove hard overlaps,
    pull the declared bonds to their target lengths (seconds per structure).
-2. **Screen** the candidate with `scripts/ts_mlip_screen.py` — basin / barrier /
+2. **Fold conformers** with `scripts/mlip_tools.py conf` when the ligands or
+   chains are flexible — generate 16–64 random rotamers, relax them on the MLIP
+   surface, keep 3–5 distinct low-energy conformers (seconds to minutes).
+3. **Screen** the candidate with `scripts/ts_mlip_screen.py` — basin / barrier /
    channel verdict, where the electronic state is inside the model's domain.
-3. **Only then DFT**: P1 scan -> P2 reference + Hessian -> P3 OptTS.
+4. **Only then DFT**: P1 scan -> P2 reference + Hessian -> P3 OptTS.
 
 This is a default, not a gate: a `PES-MISMATCH` verdict means the model does not
 support the reaction and the candidate goes straight to DFT. The measured domain
@@ -108,9 +112,11 @@ Write these down before generating an input. Most failed TS projects fail here.
 3. **Connectivity** — build a bond graph with `1.3 × (r_i + r_j)` and check that
    the intended bonds are present and no unplanned bond has formed. Three
    real projects were lost to a "reactant" that had already rearranged.
-4. **Conformers** — for flexible ligands/chains, run a cheap xtb/GFN-FF
-   conformer search and keep 3–5 low-energy conformers. A single-conformer
-   R/S energy difference can be conformer-dominated (observed RMSD 1.62 Å).
+4. **Conformers** — for flexible ligands/chains, run the MLIP conformer search
+   (`scripts/mlip_tools.py conf`) and keep 3–5 distinct low-energy conformers.
+   Without an MLIP environment, use ORCA GOAT or another conformer generator.
+   A single-conformer R/S energy difference can be conformer-dominated
+   (observed RMSD 1.62 Å).
 5. **Reference state** — the reactant/encounter complex and the product, at the
    same level as the TS. A barrier without a defined reference is not a barrier.
 
@@ -118,7 +124,7 @@ Write these down before generating an input. Most failed TS projects fail here.
 
 | Situation | Route | Why |
 |---|---|---|
-| Small/medium system, fast iteration, ORCA available | **Local ORCA/xtb** | Cheapest feedback; best diagnostics (`ts_verify.py`, mode projection) |
+| Small/medium system, fast iteration, ORCA available | **Local ORCA** | Cheapest feedback; best diagnostics (`ts_verify.py`, mode projection) |
 | Production runs, Gaussian-only method, larger basis | **HPC Gaussian/Slurm** | Throughput and memory; use `gauss_ts_prep.py` |
 | Cluster has ORCA and you want the same protocol | **HPC ORCA/Slurm** | Use `ts_orca_prep.py` or `ts_ladder.py`, wrap with the Slurm template |
 | 100+ atoms, many conformers | **Local pre-screen + HPC production** | Do not burn queue time on candidates that fail cheap gates |
@@ -237,6 +243,11 @@ Full protocol and stop rules: [references/ts-protocol.md](references/ts-protocol
 ### Local ORCA
 
 ```bash
+# 0) optional conformer ensemble for flexible ligands (needs torch + orb-models)
+#    note: global options (--charge/--spin/--device) go before the subcommand
+$MLIP_PYTHON scripts/mlip_tools.py --charge 0 --spin 1 conf start.xyz \
+    -o conf_run --n 32 --keep 5 --freeze-shell 1
+
 # 1) prefilter candidate guesses
 python scripts/ts_prefilter.py --cand guesses.xyz --reactive 21,57 \
     --forming 21,57 --write-pass passing.xyz
@@ -290,7 +301,7 @@ These are the highest-value part of the kit. They prevent 10–20 h dead ends.
 | 4 | 2–3 shallow imaginary modes around −15…−25 cm⁻¹ | Flat transition valley; use the last geometry's Freq as a reference barrier and say so |
 | 5 | Imaginary-mode localization <15% | Delocalized soft mode, not the target coordinate |
 | 6 | `SADDLE-1` and the declared pair matches, but key bond lengths are wrong | Wrong channel; do not report this barrier |
-| 7 | xtb and DFT disagree | DFT wins; xtb is for folding only |
+| 7 | MLIP and DFT disagree | DFT wins; the MLIP is for repair, folding, and screening only |
 | 8 | IRC/relaxation endpoint is not the intended reactant/product | Return to P1/P2; no barrier claim |
 | 9 | Single-point ⟨S²⟩ differs from the geometry job | Wrong electronic state; redo with the same UKS/BS settings |
 | 10 | R/S difference without a conformer search | Not a stereoselectivity result; do the ensemble first |

@@ -20,9 +20,11 @@ author-specific paths, accounts, or auxiliary skills are required.
   free energies (constrained reference points, frequency/thermochemistry
   checks, one fixed energy convention), conformer ensembles, spin-state
   enumeration, and geometry repair before DFT.
-- **The plumbing:** local ORCA/xtb execution and Gaussian/Slurm execution with
-  templates, candidate prefiltering, per-point independent scans, input
-  generation, imaginary-frequency/IRC/⟨S²⟩ checks, and an environment doctor.
+- **The plumbing:** local ORCA execution and Gaussian/Slurm execution with
+  templates, an optional learned-potential layer (geometry repair, conformer
+  folding, candidate pre-screen), candidate prefiltering, per-point independent
+  scans, input generation, imaginary-frequency/IRC/⟨S²⟩ checks, and an
+  environment doctor.
 - A failure catalogue and printable checklists distilled from real Ni/Fe
   catalysis projects.
 
@@ -57,10 +59,11 @@ author-specific paths, accounts, or auxiliary skills are required.
    > localization, IRC endpoints, and spin diagnostics.
 
 4. On first use, run `python scripts/doctor.py`. If a tool is not found, set
-   `TS_ORCA_EXE`, `ORCA_DIR`, `TS_G16_EXE`, or `TS_XTB_EXE`; see
-   [references/setup.md](references/setup.md). The optional MLIP pre-screen
-   (P0.5) additionally needs PyTorch and `orb-models` in a separate
-   environment, pointed to by `MLIP_PYTHON`; the rest of the package does not.
+   `TS_ORCA_EXE`, `ORCA_DIR`, or `TS_G16_EXE`; see
+   [references/setup.md](references/setup.md). The optional MLIP layer (repair,
+   conformer folding, P0.5 screen) additionally needs PyTorch and `orb-models`
+   in a separate environment, pointed to by `MLIP_PYTHON`; the rest of the
+   package does not.
 
 5. The agent reads [SKILL.md](SKILL.md) for the protocol and
    [references/](references/) for details. No manual command sequence is
@@ -78,7 +81,7 @@ SKILL.md                  entry point and protocol summary
 references/               setup, protocol, local ORCA, HPC, pitfalls,
                           checklists, UniTS/GOAT, background, AI role
 scripts/                  doctor, prefilter, scan, ladders, verifiers,
-                          optional MLIP pre-screen
+                          optional MLIP repair/conformer/screen tools
 assets/templates/         ORCA/Gaussian/Slurm input templates
 ```
 

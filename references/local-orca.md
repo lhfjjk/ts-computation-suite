@@ -1,7 +1,8 @@
-# Local ORCA / xtb execution
+# Local ORCA execution (with an optional MLIP helper)
 
-This reference is for running the protocol on a workstation with ORCA 6.1 and
-xtb. It assumes the five-stage protocol in
+This reference is for running the protocol on a workstation with ORCA 6.1,
+plus an optional learned-potential environment for geometry repair, conformer
+folding, and pre-screening. It assumes the five-stage protocol in
 [ts-protocol.md](ts-protocol.md); only the engine-specific parts are here.
 
 ## 1. Environment
@@ -10,8 +11,11 @@ xtb. It assumes the five-stage protocol in
   accept `--orca`. Example: `C:\ORCA_6.1.1\orca.exe` or
   `/opt/orca/orca`. For generated **bash** chains, set `ORCA_DIR` to a
   shell-style path (Git Bash: `/c/ORCA_6.1.1`; Linux: `/opt/orca`).
-- xtb: `xtb` on `PATH`, or set `TS_XTB_EXE`. Example:
-  `C:\ORCA_6.1.1\xtb-6.7.1pre\xtb.exe` or `/opt/xtb/bin/xtb`.
+- MLIP (optional): a separate Python environment with `torch` + `orb-models`
+  (or `mace-torch`), pointed to by `MLIP_PYTHON`. Example:
+  `C:\Tools\mlip\env\Scripts\python.exe`. The core scripts do not need it;
+  only the MLIP commands below do. Check with
+  `$MLIP_PYTHON -c "import torch, orb_models"`.
 - Put the ORCA directory on `PATH`, or set `ORCA_DIR` for generated chains.
 - Use a pure-ASCII working directory when possible. Some viewers and older
   scripts fail silently on Chinese paths; if you must use one, verify every
@@ -230,16 +234,33 @@ not comparable to a minimum's.
 - If a job is running, do not interrupt it to "fix" an input. Wait, or run a
   separate check that does not touch the running job.
 
-## 8. xtb pre-optimization
+## 8. MLIP pre-optimization and conformer folding
 
-Use xtb/GFN-FF only to fold conformers or to get a rough path:
+The learned potential replaces the old semiempirical folding step. Both commands
+need the `MLIP_PYTHON` environment.
 
 ```bash
-xtb start.xyz --opt tight --gfn 2
+# fold a flexible ligand/chain: random rotamers -> MLIP relaxation -> dedup
+$MLIP_PYTHON scripts/mlip_tools.py --charge 0 --spin 1 conf start.xyz \
+    -o conf_run --n 32 --keep 5 --freeze-shell 1
+
+# repair a malformed start (overlaps, stretched bonds) before DFT
+$MLIP_PYTHON scripts/mlip_tools.py --charge 0 --spin 1 opt start.xyz \
+    -o start.mlip.xyz --freeze-shell 1
 ```
 
-Do **not** quote xtb energies or bond lengths in a paper. GFN2 is too coarse
-for Ni/Fe coordination; it is a conformer generator, not evidence.
+Global options (`--charge`, `--spin`, `--device`, `--backend`) go **before**
+the subcommand; the subcommand options follow it.
+
+Conformer ranking uses the MLIP energies only to decide which 3–5 structures
+reach DFT — re-optimize those at the DFT level before comparing them. Do
+**not** quote MLIP energies or bond lengths in a paper: on this project's
+Ni/Fe systems, conformer/stereoisomer energy differences from the potential
+were off by ~2.6 kcal mol⁻¹, broken-symmetry singlets are outside its domain,
+and spin-state gaps are not reliable.
+
+Without an MLIP environment, use ORCA GOAT or another conformer generator;
+the protocol does not depend on any one folding engine.
 
 ## 9. Troubleshooting
 

@@ -2,8 +2,9 @@
 """Check a TS-computation environment and run parser/generator self-tests.
 
 This is the first command a new user should run. It does not run quantum
-chemistry; it checks that the scripts are intact, that ORCA/Gaussian/xtb are
-discoverable, and that the input generators and output parsers work.
+chemistry; it checks that the scripts are intact, that ORCA/Gaussian are
+discoverable, that the optional MLIP environment (MLIP_PYTHON) can import its
+dependencies, and that the input generators and output parsers work.
 
 Examples
 --------
@@ -40,6 +41,25 @@ def resolve(name, env_names):
     if found:
         return found, "PATH"
     return None, "not found"
+
+
+def check_mlip():
+    """Optional: MLIP_PYTHON must exist and import torch + orb_models."""
+    exe = os.environ.get("MLIP_PYTHON")
+    if not exe:
+        return {"path": None, "source": "MLIP_PYTHON not set",
+                "found": False, "importable": None, "detail": ""}
+    found = Path(exe).exists() or bool(shutil.which(exe))
+    if not found:
+        return {"path": exe, "source": "$MLIP_PYTHON", "found": False,
+                "importable": None, "detail": "interpreter not found"}
+    r = run([exe, "-c", "import torch, orb_models"])
+    detail = ""
+    if r.returncode != 0:
+        lines = (r.stderr or r.stdout).strip().splitlines()
+        detail = lines[-1][:200] if lines else f"exit {r.returncode}"
+    return {"path": exe, "source": "$MLIP_PYTHON", "found": True,
+            "importable": r.returncode == 0, "detail": detail}
 
 
 def compile_all():
@@ -131,10 +151,10 @@ def main():
     tools = {
         "ORCA": resolve("orca", ["TS_ORCA_EXE", "ORCA_EXE"]),
         "Gaussian": resolve("g16", ["TS_G16_EXE"]),
-        "xtb": resolve("xtb", ["TS_XTB_EXE"]),
         "sbatch": resolve("sbatch", ["TS_SBATCH"]),
         "ssh": resolve("ssh", ["TS_SSH"]),
     }
+    mlip = check_mlip()
     py_ok = sys.version_info >= (3, 9)
     compile_bad = compile_all()
     tests = [] if args.skip_self_test else self_test()
@@ -152,6 +172,7 @@ def main():
             name: {"path": path, "source": source, "found": bool(path)}
             for name, (path, source) in tools.items()
         },
+        "mlip": mlip,
         "ssh_alias": os.environ.get("TS_SSH_ALIAS", ""),
         "self_test": [
             {"name": name, "ok": ok, "detail": detail}
@@ -172,6 +193,12 @@ def main():
         print(f"  scripts: {'OK' if not compile_bad else 'COMPILE FAILURES'}")
         for name, (path, source) in tools.items():
             print(f"  {name:9s}: {path or 'not found'}  ({source})")
+        if not mlip["found"]:
+            print(f"  MLIP     : not configured  ({mlip['source']})")
+        else:
+            state = ("imports OK" if mlip["importable"]
+                     else "IMPORT FAILED" + (f": {mlip['detail']}" if mlip["detail"] else ""))
+            print(f"  MLIP     : {mlip['path']}  ({mlip['source']}, {state})")
         if result["ssh_alias"]:
             print(f"  ssh alias: {result['ssh_alias']}")
         if not args.skip_self_test:
@@ -182,7 +209,7 @@ def main():
         print("\nSet these if a tool is not found:")
         print("  TS_ORCA_EXE=/path/to/orca   ORCA_DIR=/path/to/orca-dir")
         print("  TS_G16_EXE=g16              (and gauss_ts_prep.py --g16root ...)")
-        print("  TS_XTB_EXE=/path/to/xtb")
+        print("  MLIP_PYTHON=/path/to/mlip-env/python   (torch + orb-models)")
         print("  TS_SSH_ALIAS=<ssh-config-alias>")
         print("\nSee references/setup.md for the full setup guide.")
 
