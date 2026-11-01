@@ -2,7 +2,7 @@
 
 项目：**TS Computation Suite** — 以过渡态发现为核心的 AI 辅助计算工具箱
 仓库：https://github.com/lhfjjk/ts-computation-suite
-版本：v0.2.2 ｜ 许可：MIT ｜ 配套论文：*Beyond Candidate Generation: A Validation-First Protocol for AI-Assisted Transition-State Discovery*（ChemRxiv 稿）
+版本：v0.4.2 ｜ 许可：MIT ｜ 配套论文：*Beyond Candidate Generation: A Validation-First Protocol for AI-Assisted Transition-State Discovery*（ChemRxiv 稿）
 
 ---
 

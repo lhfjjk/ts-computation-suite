@@ -10,7 +10,7 @@
 
 两种用法
   1) 独立 CLI（必须用 MLIP venv 的 python，因为要 torch/orb）：
-       C:\\Tools\\mlip\\env\\Scripts\\python.exe mlip_preopt.py \\
+       <mlip-python> mlip_preopt.py \\
            --in A1-face2.inp --out A1-face2-pre.xyz \\
            --charge 0 --spin 1 --constraint 58,60,2.15 --freeze-constrained --json rep.json
   2) 链内挂载（系统 python 也能 import；torch/ase 只在子进程里用）：

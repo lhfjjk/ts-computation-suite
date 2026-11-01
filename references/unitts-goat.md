@@ -1,10 +1,10 @@
-# Candidate generation: UniTS-Gen, GOAT-TS, or manual
+# Candidate generation: UniTS-Gen, ORCA GOAT-REACT, or manual
 
 The five-stage protocol starts with a TS guess. This reference covers the three
 practical sources of that guess. The rest of the suite (prefilter, L1/L2,
 validation) is independent of which source you use.
 
-| | UniTS-Gen (ML) | ORCA GOAT-TS (built in) | Manual / template |
+| | UniTS-Gen (ML) | ORCA GOAT-REACT (built in) | Manual / template |
 |---|---|---|---|
 | Install | Python env + torch + weights (~3 GB) | none (ORCA 6.1+) | none |
 | Cost | generation is seconds; every candidate needs DFT | exploration costs CPU; the uphill stage can use ORCA-native GFN-FF (`GFNUPHILL GFNFF`) | cheapest if the target is known |
@@ -14,7 +14,8 @@ validation) is independent of which source you use.
 **Decision guide:**
 
 - Target step known, just need a guess → **manual + two-step protocol** first.
-- Want to check whether you missed a channel/conformer → **GOAT-TS**.
+- Want to check whether you missed a channel/conformer → **GOAT-REACT**
+  (documented mode; `GOAT-TS` also parses in 6.1.1 but is undocumented — see §2).
 - Need to enumerate reaction sites/stereochemistry, or GOAT is too slow →
   **UniTS-Gen multi-sample**.
 - Any route → **prefilter → L1/L2 → P4 validation**. Never trust the generator.
@@ -134,16 +135,29 @@ allowed to be long.
 
 ---
 
-## 2. ORCA GOAT-TS
+## 2. ORCA GOAT: `GOAT-REACT` is documented, `GOAT-TS` is parser-only
 
-ORCA 6.1+ includes GOAT (Global Optimization of Atomistic sTructures) with
-`GOAT-TS` and `GOAT-REACT` modes. It is a physically rigorous alternative to an
-ML prior and requires no extra install.
+ORCA 6.0+ includes GOAT (Global Optimization of Atomistic sTructures). It is a
+physically rigorous alternative to an ML prior and requires no extra install.
 
-### 2.1 Verified syntax
+**Two different things are easy to conflate — keep them apart:**
+
+| keyword / key | parser (6.1.1) | official documentation | use it for a paper? |
+|---|---|---|---|
+| `! GOAT` | accepts | §4.10, "the command to call the global optimizer is simply `!GOAT`" | yes |
+| `! GOAT-REACT` | accepts | §4.10.7, "an algorithm for automatic reaction pathway exploration" (also in the 6.0 manual) | **yes — default for pathway search** |
+| `! GOAT-ENTROPY`, `! GOAT-EXPLORE`, `! GOAT-DIVERSITY`, `! GOAT-COARSE` | accepts | §4.10.4/§4.10.6 and the 6.1 changelog | yes |
+| `! GOAT-TS` | **accepts** | **none** — absent from Table 4.8, the changelog, and the tutorials; 0 hits in the 6.0 manual | **no** — exploratory only |
+| `%GOAT USEGOAT / REACTIVEATOMS / GFNUPHILL GFNFF` | accepts | no manual entry (the documented `%goat` keys are in Table 4.9) | no |
+
+The last two rows are why this reference keeps two templates below: the probe
+results are real and useful for exploration, but a published protocol cannot
+cite a keyword that has no documentation. What we publish is `GOAT-REACT`.
+
+### 2.1 Verified syntax (parser probe)
 
 These were verified against the ORCA 6.1.1 binary with a "no coordinates → stop"
-probe:
+probe. Parser acceptance is **not** documentation — see the table above:
 
 - `! GOAT-TS`, `! GOAT`, `! GOAT-REACT` are valid simple-input keywords.
 - Accepted `%GOAT` parameters: `USEGOAT`, `GFNUPHILL`, `MAXCORESOPT`,
@@ -154,7 +168,9 @@ probe:
   extra install. `GFNUPHILL GFN2XTB` (or `GFN1XTB`/`GFN0XTB`) calls an external
   xtb binary (`otool_xtb`, version 6.7.1+); this package does not require it.
   Bond-breaking modes (`GOAT-EXPLORE`, `GOAT-REACT`) cannot use GFN-FF and would
-  need that external interface; `GOAT-TS`, the mode used here, does not.
+  need that external interface; `GOAT-TS` — the only mode where the probe saw
+  `GFNUPHILL GFNFF` accepted — does not. **Consequence:** the documented
+  `GOAT-REACT` route below is run without any `GFNUPHILL` line.
 - Rejected in `%GOAT`: `NSTEPS`, `RUNMODE`, `NPROCS`, `MAXCORE`, `TEMP`,
   `DOSOLV`, `OPTIMIZER`, `PRINTLEVEL`, `FIXEDATOMS`, `ENSEMBLE`, `MAXCONF`,
   `ETOL`, `GFN`, `COARSE`, `UPHILL`, `SCAN_GOAT_*`.
@@ -163,7 +179,37 @@ probe:
 `Scan_GOAT_TOPO_BREAK`, etc.) can be internal function names, not user
 parameters. Probe the input parser before relying on them.
 
-### 2.2 Template
+### 2.2 Template A — the documented route (use this one in a paper)
+
+Every string here appears in the ORCA 6.1 manual: `!GOAT-REACT` (§4.10.7),
+`%pal`/`%maxcore` (§2.5/§2.1.3), and Cartesian constraints `{ C 0 C }` (§4.1.3.3.1).
+No `%goat` block, so the documented defaults apply.
+
+```text
+! GOAT-REACT B3LYP D3BJ def2-SVP TightSCF
+%pal nprocs 12 end
+%maxcore 1100
+
+%geom
+  Constraints
+    { C 0 C }
+    { C 4 C }
+    { C 5 C }
+  end
+end
+
+* xyz 0 1
+<coords>
+*
+```
+
+Note on `MAXITER`: in a `%goat` block it bounds the geometry iterations per
+worker (documented default 128), not the number of search steps — it is easy to
+set it far too tight. Template A therefore leaves the block out entirely.
+
+### 2.3 Template B — probe-verified only (exploratory)
+
+Parses in 6.1.1; undocumented. Use it to explore, and do not put it in a paper.
 
 ```text
 ! GOAT-TS B3LYP D3BJ def2-SVP TightSCF
@@ -185,7 +231,7 @@ Use `GFNUPHILL GFNFF` for a cheaper exploration, then re-optimize the candidate
 at the DFT level. GOAT is a search tool, not a substitute for `OptTS` + `Freq` +
 IRC.
 
-### 2.3 Cost and constraints
+### 2.4 Cost and constraints
 
 - GOAT can be slow for 70+ flexible atoms; it is best for small/medium systems
   or for checking whether a channel exists.

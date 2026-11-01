@@ -14,3 +14,5 @@ jobs:
           python-version: "3.12"
       - name: Run environment check and parser self-tests
         run: python scripts/doctor.py
+      - name: Documentation consistency gate
+        run: python scripts/check_docs.py --verbose

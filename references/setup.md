@@ -122,7 +122,7 @@ ts-computation-suite/
     hpc-slurm.md            Gaussian/Slurm execution
     pitfalls.md             failure catalogue
     checklists.md           printable P0-P4/HPC/reporting checklists
-    unitts-goat.md          candidate generation (UniTS-Gen / GOAT-TS)
+    unitts-goat.md          candidate generation (UniTS-Gen / GOAT-REACT)
     background.md           thermodynamics/kinetics and AI context
     ai-role.md              what AI contributes and what it does not
   scripts/

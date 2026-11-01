@@ -30,11 +30,18 @@ and stopping early when the evidence says the target is not a first-order
 saddle.
 
 **What is not bundled:** a generative model or a cluster account. Candidate
-generation can come from UniTS-Gen, ORCA GOAT-TS, or a hand-built guess; this
+generation can come from UniTS-Gen, ORCA GOAT-REACT, or a hand-built guess; this
 suite provides the prefilter, the ladder, and the validation layer. The
 UniTS-Gen/GOAT interfaces are documented in
 [references/unitts-goat.md](references/unitts-goat.md); the AI division of
 labor is in [references/ai-role.md](references/ai-role.md).
+
+**On the ORCA search keyword:** `GOAT-REACT` is the documented mode (ORCA 6.1
+manual §4.10.7, "an algorithm for automatic reaction pathway exploration").
+`GOAT-TS` is accepted by the 6.1.1 input parser but appears in no manual page,
+changelog entry, or tutorial, so treat it as exploratory and do not cite it in a
+paper. The evidence levels are tabulated in
+[references/unitts-goat.md](references/unitts-goat.md).
 
 **First run:** `python scripts/doctor.py` checks Python, compiles every script,
 locates ORCA/Gaussian/Slurm/SSH, verifies the optional MLIP environment when
@@ -128,7 +135,7 @@ Write these down before generating an input. Most failed TS projects fail here.
 | Production runs, Gaussian-only method, larger basis | **HPC Gaussian/Slurm** | Throughput and memory; use `gauss_ts_prep.py` |
 | Cluster has ORCA and you want the same protocol | **HPC ORCA/Slurm** | Use `ts_orca_prep.py` or `ts_ladder.py`, wrap with the Slurm template |
 | 100+ atoms, many conformers | **Local pre-screen + HPC production** | Do not burn queue time on candidates that fail cheap gates |
-| Unknown channel / no TS guess | **GOAT-TS or a relaxed scan first** | Do not start with a blind OptTS |
+| Unknown channel / no TS guess | **GOAT-REACT or a relaxed scan first** | Do not start with a blind OptTS |
 
 Local ORCA details: [references/local-orca.md](references/local-orca.md).
 Gaussian/Slurm details: [references/hpc-slurm.md](references/hpc-slurm.md).
@@ -242,6 +249,9 @@ Full protocol and stop rules: [references/ts-protocol.md](references/ts-protocol
 
 ### Local ORCA
 
+On Windows the environment variable is `$env:MLIP_PYTHON`; the
+blocks below use the POSIX form.
+
 ```bash
 # 0) optional conformer ensemble for flexible ligands (needs torch + orb-models)
 #    note: global options (--charge/--spin/--device) go before the subcommand
@@ -336,7 +346,7 @@ These are the highest-value part of the kit. They prevent 10–20 h dead ends.
 | `scripts/ts_scan_pts.py` | ORCA per-point independent constrained scan (no `%geom Scan`) |
 | `scripts/ts_ladder.py` | Generate ORCA L1 constrained Opt+Freq, L2 OptTS, L3 relax, SP |
 | `scripts/ts_ladder_run.py` | Run the ORCA ladder serially with gates and routing |
-| `scripts/ts_verify.py` | ORCA verdict: imaginary count, mode atoms, IRC |
+| `scripts/ts_verify.py` | ORCA verdict: imaginary count, mode atoms, IRC (`--irc`) |
 | `scripts/ts_orca_prep.py` | Turn candidate xyz files into ORCA inputs |
 | `scripts/gauss_ts_prep.py` | Generate Gaussian L1/L2/IRC/SP ladder + sbatch |
 | `scripts/gauss_verify.py` | Gaussian verdict: frequencies, termination, thermo, ⟨S²⟩ |
@@ -344,6 +354,8 @@ These are the highest-value part of the kit. They prevent 10–20 h dead ends.
 | `scripts/ts_mlip_screen.py` | Optional MLIP pre-screen: basin / barrier / channel verdict at geometry level |
 | `scripts/mlip_preopt.py` | Optional MLIP geometry repair: remove overlaps, satisfy declared bond constraints |
 | `scripts/mlip_tools.py` | Shared MLIP backend (OrbMol / MACE calculators, constraints, conformer search) |
+| `scripts/ts_common.py` | Shared helpers (units, output parsing, xyz I/O) imported by the other scripts |
+| `scripts/check_docs.py` | Documentation gate: links, script/reference inventory, stage coverage, version |
 
 ## Reporting checklist
 
@@ -378,7 +390,7 @@ Read only what the current task needs:
 - [references/checklists.md](references/checklists.md) — printable P0–P4,
   HPC submission, and reporting checklists.
 - [references/unitts-goat.md](references/unitts-goat.md) — UniTS-Gen
-  installation/CLI, GOAT-TS syntax, multi-sample/prefilter strategy, limits.
+  installation/CLI, GOAT-REACT/GOAT-TS syntax with evidence levels, multi-sample/prefilter strategy, limits.
 - [references/background.md](references/background.md) — thermodynamics vs
   kinetics, energy span, flux branching, and why the protocol uses ΔE/IRC.
 - [references/ai-role.md](references/ai-role.md) — what AI/ML actually

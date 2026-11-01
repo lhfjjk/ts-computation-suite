@@ -8,6 +8,39 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.4.2] - 2026-11-01
+
+### Fixed
+
+- **Documentation drift after the 0.4.0 learned-potential switch.** `SKILL.md`
+  promoted P0.5 as a default step, but `references/ts-protocol.md` still
+  described only P0–P4 and `references/checklists.md` had no P0.5 gate. Both now
+  carry the stage: verdict table (`BARRIER-LIKE` / `BASIN` / `WRONG-CHANNEL` /
+  `PES-MISMATCH` / `SKIP-BS`), the measured applicability domain, and the
+  "repair does not save optimization cycles" caveat.
+- `references/ts-protocol.md` §1 was headed "四段流程（P0–P4）" while its own
+  title said five stages; the heading, the stage diagram and the time budget are
+  corrected.
+- **GOAT keyword evidence split.** `GOAT-REACT` is the documented mode (6.1
+  manual §4.10.7, present since 6.0) and is now the recommended pathway search;
+  `GOAT-TS` parses in 6.1.1 but has no manual page, changelog entry or tutorial,
+  so it is labelled parser-only and must not be cited. The probe-verified
+  `%GOAT` keys (`USEGOAT`, `REACTIVEATOMS`, `GFNUPHILL GFNFF`) carry the same
+  label, and `references/unitts-goat.md` now has a documented template
+  (Template A) next to the exploratory one (Template B).
+- **Author name** in `CITATION.cff`, `README.md` and `paper/cover_letter.tex`:
+  `Hao-Fan Li` → `Haofan Li`, matching the preprint and the rest of the
+  repository; the README citation now reads `Li, H.`.
+- `SKILL.md` scripts table: added `ts_common.py` (14 scripts, 13 rows before).
+- Windows note for the MLIP environment variable (`$env:MLIP_PYTHON`).
+- `scripts/mlip_preopt.py` docstring no longer embeds one machine's interpreter
+  path.
+
+### Added
+
+- `docs/INSTALL-DSH.md` — installing the skill into DeepSeek Harness
+  (`~/.dsh/skills`), verifying it, updating it, and removing it.
+
 ## [0.4.1] - 2026-10-31
 
 ### Fixed

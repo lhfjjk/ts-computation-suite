@@ -12,7 +12,7 @@
 | 层级 | 代表 | 实际做什么 | 不能做什么 |
 |---|---|---|---|
 | **生成模型** | UniTS-Gen 等 | 从 2D 图 + 反应位点生成 3D TS 初猜 | 不保证初猜是目标通道；不保证大体系/BS 面可用 |
-| **自动搜索算法** | ORCA GOAT-TS | 自动探索构象/反应通道，找鞍点候选 | 不便宜；100+ 原子很慢；仍需 DFT 精修与验证 |
+| **自动搜索算法** | ORCA GOAT-REACT（文档化；`GOAT-TS` 仅解析器接受） | 自动探索构象/反应通道，找鞍点候选 | 不便宜；100+ 原子很慢；仍需 DFT 精修与验证 |
 | **ML 势 / 代理模型** | MACE/NequIP/ANI、Δ-ML | 加速 MD、几何优化、构象枚举、垒的近似 | 不能给出 1 kcal 级过渡金属垒；不能替代高精度单点 |
 | **LLM / Agent** | 本类工具 | 生成输入、解析输出、监控作业、检索文献、编排流程 | 不能判断机理、验证电子态、替代人工决策 |
 
@@ -55,7 +55,7 @@
 正确用法是**多采样 + 预筛**，不是单次生成直接跑 OptTS：
 
 ```bash
-# 用你选择的生成器（UniTS-Gen / GOAT-TS / 手搭）产出多帧 candidates.xyz
+# 用你选择的生成器（UniTS-Gen / GOAT-REACT / 手搭）产出多帧 candidates.xyz
 # 然后做物理预筛：clash / RMSD / 连通性
 python scripts/ts_prefilter.py --cand candidates.xyz \
     --reactive 56,57 --forming 56,57 --write-pass pass.xyz

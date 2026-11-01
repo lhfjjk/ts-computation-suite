@@ -2,7 +2,7 @@
 
 A portable, validation-first protocol for **AI-assisted transition-state (TS)
 discovery**. It is built for chemists who can generate TS candidates with a
-model (UniTS-Gen, ORCA GOAT-TS, or a hand-built guess) but need a reliable way
+model (UniTS-Gen, ORCA GOAT-REACT, or a hand-built guess) but need a reliable way
 to decide whether a candidate is a real, connected, first-order saddle for the
 reaction they intended.
 
@@ -31,7 +31,7 @@ author-specific paths, accounts, or auxiliary skills are required.
 ## What it is not
 
 - It is not a generative model. Candidate generation can come from UniTS-Gen,
-  ORCA GOAT-TS, or a manual guess; see
+  ORCA GOAT-REACT, or a manual guess; see
   [references/unitts-goat.md](references/unitts-goat.md).
 - It does not replace electronic-structure judgment: spin states, connectivity,
   mode identity, and IRC endpoints still need to be checked.
@@ -121,7 +121,7 @@ preparation for ChemRxiv; the draft source and PDF are in
 [`paper/`](paper/). Until it is available, cite this repository:
 
 ```text
-Li, H.-F. TS Computation Suite: a validation-first protocol for AI-assisted
+Li, H. TS Computation Suite: a validation-first protocol for AI-assisted
 transition-state discovery. GitHub repository, 2026.
 ```
 

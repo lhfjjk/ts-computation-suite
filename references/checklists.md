@@ -21,6 +21,26 @@ Method / basis / dispersion / solvent / grid:
 ORCA or Gaussian version:
 ```
 
+## P0.5 — learned-potential pre-screen (optional)
+
+Run only when a learned potential (torch + orb-models) is available. Every box
+below is about the geometry, not about the electronic state.
+
+```text
+[ ] Reaction coordinate declared (forming/breaking pairs, target bond lengths)
+[ ] Charge / multiplicity passed to the model
+[ ] In the model's applicability domain?      [ ] yes [ ] no  (broken-symmetry
+    singlets and open-shell metals: geometry repair only, verdict not usable)
+[ ] Hard overlaps removed and coordination sphere unchanged (dNi–N, dNi–Cl)
+[ ] Both directions relaxed; verdict recorded (BARRIER-LIKE / BASIN /
+    WRONG-CHANNEL / PES-MISMATCH)              [ ] recorded
+[ ] If PES-MISMATCH (>60 kcal above both endpoints): not treated as a basin,
+    candidate goes to P1
+[ ] Repair not counted as saved optimization cycles (ORCA projects constraints
+    before cycle 1; the rest is conformer relaxation)
+[ ] Model identity / version / device / input pairs logged with the candidate
+```
+
 ## P1 — barrier scan
 
 - [ ] Reaction coordinate is the chemically correct one (metal-centered
