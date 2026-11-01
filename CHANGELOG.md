@@ -8,6 +8,23 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.4.4] - 2026-11-01
+
+### Added
+
+- `references/unitts-goat.md` §2.5: a measured comparison of `GOAT-REACT`,
+  `GOAT-TS`, and `GOAT-TS` with `%goat USEGOAT/REACTIVEATOMS` on acetaldehyde
+  (7 atoms, HF/STO-3G, ORCA 6.1.1, `MAXITER 3`). Signature artifacts separate
+  the modes: `GOAT-REACT` writes per-worker `products[.unique|.topodiffK].xyz`,
+  `GOAT-TS` writes Hessians and no product list. Both need minutes even for a
+  seven-atom system; with the default `MAXITER` none finished within 15 min.
+
+### Fixed
+
+- The `MAXITER` note in the GOAT reference said "geometry iterations per
+  worker"; the probe shows it acting as a global-iteration cap. The note now
+  records both the manual wording and the observed behaviour.
+
 ## [0.4.3] - 2026-11-01
 
 ### Changed

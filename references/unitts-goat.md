@@ -203,9 +203,10 @@ end
 *
 ```
 
-Note on `MAXITER`: in a `%goat` block it bounds the geometry iterations per
-worker (documented default 128), not the number of search steps — it is easy to
-set it far too tight. Template A therefore leaves the block out entirely.
+Note on `MAXITER`: the manual describes it as a per-worker geometry-iteration
+cap (default 128), but the probe in §2.5 shows it acting as a **global iteration**
+cap (`MAXITER 3` produced `GOAT Global Iter 1..3`). Either way it is easy to set
+far too tight, so Template A leaves the block out entirely.
 
 ### 2.3 Template B — probe-verified only (exploratory)
 
@@ -242,6 +243,36 @@ IRC.
   tell you whether the candidate is the channel you intended.
 
 ---
+
+### 2.5 What the modes actually do — measured 2026-11-01
+
+Setup: acetaldehyde (7 atoms), HF/STO-3G, `%pal nprocs 4`, ORCA 6.1.1,
+`%goat MAXITER 3`. Three runs, same geometry and level; only the mode differs.
+
+| input | wall | signature artifacts | reading |
+|---|---|---|---|
+| `! GOAT-REACT` | **6.2 min** | `job.goat.N.products.xyz`, `.products.unique.xyz`, `.products.topodiff0.xyz`, plus `job.globalminimum.xyz` / `job.finalensemble.xyz` | pathway and bond-topology exploration; one product list per worker |
+| `! GOAT-TS` | **6.6 min** | **12 `.hess` files**, **no `products.*`**, plus `job.globalminimum.xyz` / `job.finalensemble.xyz` | Hessian-driven search, consistent with a TS-conformer mode; no product list is written |
+| `! GOAT-TS` + `%goat USEGOAT true REACTIVEATOMS {0 1 2} end` | **>10 min (killed)** | per-worker `*_trj.xyz`, partial final ensemble | heavier per iteration; did not finish inside the cap |
+
+Three things worth keeping:
+
+1. **Cost.** With the default `MAXITER` (128) none of the three finished within
+   15 min — on a *seven-atom* system. GOAT is a minutes-to-hours tool; the 100+
+   atom systems where it is actually useful are far more expensive. Never plan a
+   session as if it were a seconds-scale step.
+2. **The log does not identify the mode.** Both modes print `Global minimum
+   found!` and `GOAT Global Iter k`. Classify a run by its artifact signature
+   (product lists vs Hessians), not by its log wording.
+3. **`MAXITER` behaved as a global-iteration cap** here (`MAXITER 3` → three
+   `GOAT Global Iter` rounds, `NOpt = 3` per worker), which disagrees with the
+   manual sentence that calls it a per-worker geometry cap. Verify it on your
+   ORCA version before setting it.
+
+**Caveat.** These are artifact-signature observations on one system. They do not
+define `GOAT-TS`: the mode still has no manual page, and no measurement here
+establishes its algorithm, defaults or outputs in general. Do not cite this
+section as documentation of the mode; cite it as a probe.
 
 ## 3. Manual / template
 
