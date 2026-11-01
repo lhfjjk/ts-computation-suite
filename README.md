@@ -112,13 +112,14 @@ is only complete when, in the same change:
 4. a GitHub Release is published, with the changelog section as its notes.
 
 The protocol text, the figure, and the scripts that implement it are versioned
-together: the paper in [`paper/`](paper/) ships as part of the same release.
+together. The companion preprint is kept in its own repository so that this
+package stays code-only; see [docs/PAPER.md](docs/PAPER.md).
 
 ## Citation
 
 A companion preprint describing the protocol and case evidence is in
-preparation for ChemRxiv; the draft source and PDF are in
-[`paper/`](paper/). Until it is available, cite this repository:
+preparation for ChemRxiv. Its source and PDFs are not shipped here; see
+[docs/PAPER.md](docs/PAPER.md). Until it is available, cite this repository:
 
 ```text
 Li, H. TS Computation Suite: a validation-first protocol for AI-assisted

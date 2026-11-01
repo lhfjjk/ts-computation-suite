@@ -8,6 +8,25 @@ The version of record is the `version:` field in [`CITATION.cff`](CITATION.cff).
 Every release carries a `vX.Y.Z` tag and a GitHub Release whose notes are copied
 from the section below.
 
+## [0.4.3] - 2026-11-01
+
+### Changed
+
+- **The companion preprint moved out of the skill package.** `paper/`
+  (11 files, 1.2 MB of LaTeX sources and PDFs) became its own repository; the
+  skill now ships code and protocol references only. `docs/PAPER.md` records
+  where the manuscript lives, why it was split out, and the rule that its
+  numbers must not be quoted from a snapshot.
+- README no longer points at an in-tree `paper/` directory; the `.gitignore`
+  block that only existed for its LaTeX build artifacts is gone.
+
+### Fixed
+
+- The shipped manuscript snapshot still read "ORCA/xtb" in six places after
+  v0.4.0 replaced xtb with the learned potential in the skill. The split
+  removes that contradiction from this repository; the paper repository's
+  `PROVENANCE.md` records it as known drift to sync from the canonical build.
+
 ## [0.4.2] - 2026-11-01
 
 ### Fixed
